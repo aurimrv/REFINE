@@ -1,12 +1,20 @@
 """
 OrchestratorAgent
 -----------------
-Coordinates the multi-agent pipeline:
-  1. SpecParserAgent  — loads and parses the OpenAPI specification.
-  2. LLMEnrichmentAgent — calls the LLM to generate examples per endpoint.
-  3. SpecWriterAgent  — merges examples and writes the enriched spec to disk.
+Coordinates the full OpenAPI Spec Improver pipeline.
 
-Also tracks and logs overall token usage.
+Mode A — Spec-only (no --api-src):
+  1. Parse the OpenAPI specification.
+  2. Enrich each endpoint with realistic examples via LLM.
+  3. Write the enriched spec to disk.
+
+Mode B — Spec + Source (--api-src provided):
+  1. Parse the OpenAPI specification.
+  2. Analyze the source code to extract implemented endpoints/retcodes.
+  3. Compare spec vs implementation and generate a Markdown discrepancy report.
+  4. Enrich each endpoint using implementation-aware context via LLM.
+     (Endpoints present only in the implementation are added to the spec.)
+  5. Write the enriched, implementation-aligned spec to disk.
 """
 
 import csv
@@ -17,6 +25,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from src.agents.spec_parser_agent import SpecParserAgent
 from src.agents.llm_enrichment_agent import LLMEnrichmentAgent, LLMAuthenticationError
 from src.agents.spec_writer_agent import SpecWriterAgent
+from src.agents.source_analyzer_agent import SourceAnalyzerAgent, ImplementedEndpoint
+from src.agents.discrepancy_reporter_agent import DiscrepancyReporterAgent
 from src.models.openapi_models import EndpointInfo
 from src.utils.config import Config
 from src.utils.logger import setup_logger
@@ -26,38 +36,53 @@ logger = setup_logger("orchestrator_agent")
 
 class OrchestratorAgent:
     """
-    Top-level agent that orchestrates the full OpenAPI enrichment pipeline.
+    Top-level agent that coordinates all sub-agents to produce an enriched
+    OpenAPI specification, and optionally a discrepancy report when source
+    code is provided.
     """
 
-    def __init__(self, spec_path: Path, llm_model: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        spec_path: Path,
+        llm_model: Optional[str] = None,
+        src_home: Optional[Path] = None,
+    ) -> None:
         self.spec_path = spec_path
         self.llm_model = llm_model or Config.LLM_MODEL
+        self.src_home = src_home  # None means spec-only mode
 
-    def run(self) -> Path:
+    def run(self) -> Tuple[Path, Optional[Path]]:
         """
-        Execute the full enrichment pipeline and return the path to the output file.
+        Execute the full pipeline.
+
+        Returns:
+            (enriched_spec_path, discrepancy_report_path)
+            discrepancy_report_path is None when --api-src is not provided.
         """
+        # Timestamp shared across all output files of this run
+        self._run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         logger.info("=" * 60)
         logger.info("OpenAPI Spec Improver — Starting pipeline")
         logger.info("Spec file : %s", self.spec_path)
         logger.info("LLM model : %s", self.llm_model)
+        if self.src_home:
+            logger.info("Source dir: %s", self.src_home)
+            logger.info("Mode      : Spec + Source Analysis")
+        else:
+            logger.info("Mode      : Spec-only Enrichment")
         logger.info("=" * 60)
 
-        # --- Step 1: Parse the specification ---
+        # ----------------------------------------------------------------
+        # Step 1: Parse the OpenAPI specification
+        # ----------------------------------------------------------------
         parser = SpecParserAgent(self.spec_path)
         raw_spec = parser.load()
-        endpoints: List[EndpointInfo] = parser.parse_endpoints()
+        spec_endpoints: List[EndpointInfo] = parser.parse_endpoints()
 
-        if not endpoints:
+        if not spec_endpoints:
             logger.warning("No endpoints found in the specification. Aborting.")
             raise ValueError("No endpoints found in the provided OpenAPI specification.")
 
-        # Build a short API context description for the LLM.
-        # NOTE: The 'servers' URLs from the spec are intentionally excluded from
-        # the context to make clear that NO HTTP calls are made to the described
-        # API. All enrichment is performed through static analysis of the spec
-        # file combined with LLM inference — the target API does NOT need to be
-        # running or reachable.
         api_info = raw_spec.get("info", {})
         api_context = (
             f"API Title: {api_info.get('title', 'Unknown')}\n"
@@ -69,15 +94,143 @@ class OrchestratorAgent:
             "described in the spec. Enrichment is based solely on the spec file content."
         )
 
-        # --- Step 2: Enrich each endpoint via LLM ---
+        # ----------------------------------------------------------------
+        # Step 2 (Mode B only): Analyze source code
+        # ----------------------------------------------------------------
+        impl_endpoints: List[ImplementedEndpoint] = []
+        discrepancy_report_path: Optional[Path] = None
+        total_input_tokens = 0
+        total_output_tokens = 0
+
+        if self.src_home:
+            source_agent = SourceAnalyzerAgent(src_home=self.src_home, model=self.llm_model)
+            impl_endpoints = source_agent.analyze()
+            src_usage = source_agent.get_token_usage()
+            total_input_tokens += src_usage["input_tokens"]
+            total_output_tokens += src_usage["output_tokens"]
+
+            if not impl_endpoints:
+                logger.warning(
+                    "No implemented endpoints were found in the source code. "
+                    "Proceeding with spec-only enrichment."
+                )
+
+            # ----------------------------------------------------------------
+            # Step 3 (Mode B only): Compare spec vs implementation
+            # ----------------------------------------------------------------
+            reporter = DiscrepancyReporterAgent(
+                spec_endpoints=spec_endpoints,
+                impl_endpoints=impl_endpoints,
+                spec_file=self.spec_path,
+                src_home=self.src_home,
+            )
+            discrepancy_report = reporter.compare()
+
+            # Write the discrepancy report next to the spec file
+            spec_stem = self.spec_path.stem
+            report_filename = f"{spec_stem}_discrepancy_{self._run_timestamp}.md"
+            report_path = self.spec_path.parent / report_filename
+            discrepancy_report_path = reporter.write_report(discrepancy_report, report_path)
+
+            logger.info(
+                "Discrepancy report: %d finding(s) — "
+                "%d match, %d missing in impl, %d missing in spec, "
+                "%d retcode mismatch, %d param mismatch.",
+                discrepancy_report.total,
+                discrepancy_report.matches,
+                discrepancy_report.missing_in_impl,
+                discrepancy_report.missing_in_spec,
+                discrepancy_report.retcode_mismatches,
+                discrepancy_report.param_mismatches,
+            )
+
+            # Build a lookup: (method, path) → ImplementedEndpoint for retcode resolution
+            impl_lookup: Dict[tuple, ImplementedEndpoint] = {
+                (ep.method.upper(), ep.path.rstrip("/").lower()): ep
+                for ep in impl_endpoints
+            }
+
+            # Merge impl-only endpoints into the endpoint list for enrichment
+            spec_endpoint_keys = set(impl_lookup.keys())
+            for impl_ep in impl_endpoints:
+                key = (impl_ep.method.upper(), impl_ep.path.rstrip("/").lower())
+                spec_keys = {
+                    (ep.method.upper(), ep.path.rstrip("/").lower())
+                    for ep in spec_endpoints
+                }
+                if key not in spec_keys:
+                    # Convert ImplementedEndpoint → EndpointInfo for enrichment
+                    extra_ep = EndpointInfo(
+                        method=impl_ep.method,
+                        path=impl_ep.path,
+                        operation_id=None,
+                        summary=impl_ep.description or f"{impl_ep.method} {impl_ep.path}",
+                        description=impl_ep.description,
+                        parameters=impl_ep.parameters,
+                        request_body=None,
+                        responses={code: {} for code in impl_ep.response_codes},
+                        response_codes=impl_ep.response_codes,
+                    )
+                    spec_endpoints.append(extra_ep)
+                    logger.info(
+                        "Added impl-only endpoint to enrichment queue: %s %s",
+                        impl_ep.method,
+                        impl_ep.path,
+                    )
+
+            # Resolve 'default' retcodes: when the spec uses 'default' as a catch-all
+            # and the impl has explicit error codes beyond 200, replace 'default' with
+            # the real codes so the LLM generates targeted examples for each one.
+            # If the impl only has 200 (or no extra codes), keep 'default' as-is.
+            for ep in spec_endpoints:
+                if "default" in ep.response_codes:
+                    key = (ep.method.upper(), ep.path.rstrip("/").lower())
+                    impl_ep = impl_lookup.get(key)
+                    if impl_ep:
+                        impl_extra = [
+                            c for c in impl_ep.response_codes
+                            if c not in ("200", "201", "204")
+                        ]
+                        if impl_extra:
+                            # Replace 'default' with the explicit error codes from impl
+                            new_codes = [
+                                c for c in ep.response_codes if c != "default"
+                            ] + impl_extra
+                            # Deduplicate while preserving order
+                            seen_codes: set = set()
+                            deduped: List[str] = []
+                            for c in new_codes:
+                                if c not in seen_codes:
+                                    deduped.append(c)
+                                    seen_codes.add(c)
+                            old_codes = ep.response_codes[:]
+                            ep.response_codes = deduped
+                            # Mark the endpoint so SpecWriterAgent knows to expand
+                            # 'default' into the real codes in the responses dict
+                            ep._impl_retcodes_replacing_default = impl_extra  # type: ignore[attr-defined]
+                            logger.info(
+                                "Resolved 'default' for %s %s: %s → %s",
+                                ep.method, ep.path, old_codes, deduped,
+                            )
+
+            # Extend api_context with implementation notes
+            api_context += (
+                "\n\nNOTE: Source code analysis has been performed. "
+                "Enrich examples to be 100% consistent with the actual implementation. "
+                "Use only the response codes and parameters confirmed in the source code."
+            )
+
+        # ----------------------------------------------------------------
+        # Step 4: Enrich each endpoint via LLM
+        # ----------------------------------------------------------------
         enrichment_agent = LLMEnrichmentAgent(model=self.llm_model)
         enrichments: List[Tuple[EndpointInfo, Dict[str, Any]]] = []
 
-        for idx, endpoint in enumerate(endpoints, start=1):
+        for idx, endpoint in enumerate(spec_endpoints, start=1):
             logger.info(
                 "[%d/%d] Enriching: %s %s",
                 idx,
-                len(endpoints),
+                len(spec_endpoints),
                 endpoint.method,
                 endpoint.path,
             )
@@ -85,8 +238,6 @@ class OrchestratorAgent:
                 examples = enrichment_agent.enrich_endpoint(endpoint, api_context)
                 enrichments.append((endpoint, examples))
             except LLMAuthenticationError:
-                # Authentication errors are permanent — abort the entire pipeline
-                # immediately instead of wasting time on all remaining endpoints.
                 raise
             except Exception as exc:  # noqa: BLE001
                 logger.error(
@@ -95,54 +246,70 @@ class OrchestratorAgent:
                     endpoint.path,
                     exc,
                 )
-                # Append empty examples so the endpoint is still present in output
                 enrichments.append((endpoint, {
                     "parameters_examples": {},
                     "request_body_examples": {},
                     "response_body_examples": {},
                 }))
 
-        # --- Step 3: Merge and write the enriched spec ---
+        # ----------------------------------------------------------------
+        # Step 5: Merge and write the enriched spec
+        # ----------------------------------------------------------------
         writer = SpecWriterAgent(raw_spec, self.spec_path)
         enriched_spec = writer.merge_examples(enrichments)
-        output_path = writer.write(enriched_spec)
+        output_path = writer.write(enriched_spec, timestamp=self._run_timestamp)
 
-        # --- Step 4: Log token usage ---
-        token_usage = enrichment_agent.get_token_usage()
-        self._log_token_usage(token_usage)
+        # ----------------------------------------------------------------
+        # Step 6: Log token usage
+        # ----------------------------------------------------------------
+        llm_usage = enrichment_agent.get_token_usage()
+        total_input_tokens += llm_usage["input_tokens"]
+        total_output_tokens += llm_usage["output_tokens"]
+        self._log_token_usage({
+            "input_tokens": total_input_tokens,
+            "output_tokens": total_output_tokens,
+        })
 
         logger.info("=" * 60)
         logger.info("Pipeline completed successfully.")
-        logger.info("Output file: %s", output_path)
+        logger.info("Enriched spec  : %s", output_path)
+        if discrepancy_report_path:
+            logger.info("Discrepancy rpt: %s", discrepancy_report_path)
         logger.info(
-            "Total tokens — input: %d, output: %d",
-            token_usage["input_tokens"],
-            token_usage["output_tokens"],
+            "Total tokens   — input: %d, output: %d",
+            total_input_tokens,
+            total_output_tokens,
         )
         logger.info("=" * 60)
 
-        return output_path
+        return output_path, discrepancy_report_path
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
 
     def _log_token_usage(self, token_usage: Dict[str, int]) -> None:
-        """
-        Append token usage statistics to a CSV file in the project root.
-        The CSV filename includes the LLM seed for traceability.
-        """
-        csv_filename = f"token_usage_seed_{Config.LLM_SEED}.csv"
-        csv_path = Path(csv_filename)
+        """Write token usage statistics to a timestamped CSV file in the spec directory."""
+        csv_filename = f"token_usage_{self._run_timestamp}.csv"
+        csv_path = self.spec_path.parent / csv_filename
         file_exists = csv_path.exists()
 
         with open(csv_path, "a", newline="", encoding="utf-8") as csvfile:
-            fieldnames = ["timestamp", "spec_file", "model", "seed", "input_tokens", "output_tokens"]
+            fieldnames = [
+                "timestamp", "spec_file", "src_home", "model",
+                "seed", "input_tokens", "output_tokens",
+            ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             if not file_exists:
                 writer.writeheader()
             writer.writerow({
                 "timestamp": datetime.now().isoformat(),
                 "spec_file": str(self.spec_path),
+                "src_home": str(self.src_home) if self.src_home else "",
                 "model": self.llm_model,
                 "seed": Config.LLM_SEED,
                 "input_tokens": token_usage["input_tokens"],
                 "output_tokens": token_usage["output_tokens"],
             })
+
         logger.info("Token usage logged to: %s", csv_path)

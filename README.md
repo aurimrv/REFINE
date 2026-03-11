@@ -1,63 +1,89 @@
 # OpenAPI Spec Improver
 
-A multi-agent Python system that analyzes an OpenAPI specification file and generates an enriched version with **realistic examples** for every endpoint and response code, facilitating the creation of test cases.
+A multi-agent Python tool that enriches OpenAPI specifications with realistic
+examples using an LLM, and optionally analyzes source code to detect
+discrepancies between the specification and the implementation.
 
-> **The described API does NOT need to be running or reachable.** All enrichment is performed through **static analysis** of the specification file combined with LLM inference. No HTTP calls are made to the API servers declared in the spec.
+> **The described API does NOT need to be running or reachable.**
+> All processing is performed through static analysis of the spec file and
+> source code, combined with LLM inference. No HTTP calls are made to the
+> API servers declared in the specification.
+
+---
+
+## Features
+
+- **Spec-only enrichment** — Reads an OpenAPI spec (JSON or YAML) and adds
+  realistic `example` values to every endpoint and response code via LLM.
+- **Source code analysis** (`--api-src`) — Scans the implementation source
+  code (any language/framework) and uses the LLM to extract all implemented
+  endpoints and response codes.
+- **Discrepancy report** — When `--api-src` is provided, compares spec vs
+  implementation and generates a detailed Markdown report highlighting:
+  - Endpoints declared in the spec but missing in the implementation
+  - Endpoints implemented but absent from the spec
+  - Response code mismatches
+  - Parameter mismatches
+- **Implementation-aligned enrichment** — When `--api-src` is provided, the
+  enriched spec is 100% aligned with the actual implementation (endpoints and
+  response codes found only in the source code are added to the output spec).
+- **Token usage logging** — All LLM token consumption is logged to a CSV file.
 
 ---
 
 ## Architecture
 
-The system follows a **multi-agent pipeline** pattern:
-
 ```
 main.py (CLI)
     └── OrchestratorAgent
-            ├── SpecParserAgent      — loads & parses the OpenAPI spec
-            ├── LLMEnrichmentAgent   — calls the LLM to generate examples
-            └── SpecWriterAgent      — merges examples & writes output file
-```
-
-### Project Structure
-
-```
-openapi-improver/
-├── main.py                        # CLI entry point
-├── requirements.txt
-├── .env.example
-├── README.md
-├── logs/                          # Auto-created log files
-└── src/
-    ├── agents/
-    │   ├── orchestrator_agent.py  # Pipeline coordinator
-    │   ├── spec_parser_agent.py   # OpenAPI spec parser
-    │   ├── llm_enrichment_agent.py# LLM-based example generator
-    │   └── spec_writer_agent.py   # Enriched spec writer
-    ├── models/
-    │   └── openapi_models.py      # Pydantic data models
-    └── utils/
-        ├── config.py              # Centralized configuration
-        ├── logger.py              # Structured logging setup
-        └── rate_limiter.py        # API rate limiting
+            ├── SpecParserAgent           — loads and parses the OpenAPI spec
+            ├── SourceAnalyzerAgent       — extracts endpoints from source code (--api-src only)
+            ├── DiscrepancyReporterAgent  — compares spec vs impl, writes Markdown report
+            ├── LLMEnrichmentAgent        — calls LLM to generate realistic examples
+            └── SpecWriterAgent           — merges examples and writes the enriched spec
 ```
 
 ---
 
-## Setup
-
-### 1. Install dependencies
+## Installation
 
 ```bash
 pip install -r requirements.txt
+cp .env.example .env
+# Edit .env and set your OPENROUTER_API_KEY
 ```
 
-### 2. Configure the environment
+---
 
-Copy `.env.example` to `.env` and fill in your values:
+## Usage
 
 ```bash
-cp .env.example .env
+# Spec-only enrichment (no source code required)
+python main.py --api-spec restcountries.json
+
+# Enrichment + source code analysis + discrepancy report
+python main.py --api-spec restcountries.json --api-src ./restcountries/
+
+# Specify LLM model explicitly
+python main.py --api-spec restcountries.json --llm-model openai/gpt-4o
+
+# Using absolute paths
+python main.py --api-spec /path/to/api-spec.json --api-src /path/to/src/
 ```
+
+### Output files
+
+| Mode | Output |
+|---|---|
+| Spec-only | `<spec_name>_<timestamp>.json` — enriched spec |
+| Spec + Source | `<spec_name>_<timestamp>.json` — enriched spec aligned with implementation |
+| Spec + Source | `<spec_name>_discrepancy_<timestamp>.md` — discrepancy report |
+
+Both output files are saved in the same directory as the original spec file.
+
+---
+
+## Configuration (`.env`)
 
 Key settings in `.env`:
 
@@ -69,82 +95,32 @@ Key settings in `.env`:
 | `LLM_TEMPERATURE` | Sampling temperature | `0.7` |
 | `LLM_SEED` | Reproducibility seed | `42` |
 | `LOG_LEVEL` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) | `INFO` |
-| `RETRY_ATTEMPTS` | Number of retry attempts on API failure | `3` |
+| `RATE_LIMIT_REQUESTS_PER_MINUTE` | Max LLM requests per minute | `60` |
+| `RETRY_ATTEMPTS` | Number of retry attempts on transient errors | `3` |
 | `RETRY_DELAY` | Initial retry delay in seconds | `2.0` |
 | `BACKOFF_FACTOR` | Exponential backoff multiplier | `3.0` |
 
 ---
 
-## Usage
-
-```bash
-python main.py --api-spec <API_SPEC> [--llm-model <LLM_MODEL>]
-```
-
-### Arguments
-
-| Argument | Required | Description |
-|---|---|---|
-| `--api-spec` | Yes | Path to the OpenAPI JSON file (relative or absolute) |
-| `--llm-model` | No | LLM model to use (overrides `LLM_MODEL` in `.env`) |
-
-### Examples
-
-```bash
-# Using a relative path
-python main.py --api-spec restcountries.json
-
-# Using an absolute path
-python main.py --api-spec /data/specs/my-api.json
-
-# Overriding the LLM model
-python main.py --api-spec restcountries.json --llm-model openai/gpt-4o
-```
-
----
-
-## Output
-
-The enriched specification is saved in the **same directory** as the input file, with a timestamp suffix:
+## Project Structure
 
 ```
-restcountries_2026-03-02_11-03-00.json
+openapi-improver/
+├── main.py                          # CLI entry point
+├── requirements.txt
+├── .env.example
+├── src/
+│   ├── agents/
+│   │   ├── orchestrator_agent.py    # Pipeline coordinator
+│   │   ├── spec_parser_agent.py     # OpenAPI spec parser
+│   │   ├── source_analyzer_agent.py # Source code endpoint extractor
+│   │   ├── discrepancy_reporter_agent.py  # Spec vs impl comparator
+│   │   ├── llm_enrichment_agent.py  # LLM-based example generator
+│   │   └── spec_writer_agent.py     # Enriched spec writer
+│   ├── models/
+│   │   └── openapi_models.py        # Pydantic data models
+│   └── utils/
+│       ├── config.py                # Environment configuration
+│       ├── logger.py                # Logging setup
+│       └── rate_limiter.py          # API rate limiter
 ```
-
-Token usage is recorded in a CSV file in the working directory:
-
-```
-token_usage_seed_42.csv
-```
-
----
-
-## What Gets Added to the Spec
-
-For each endpoint and response code, the system adds:
-
-- **Parameter examples** — realistic values for path, query, header, and cookie parameters.
-- **Request body examples** — realistic payloads for POST/PUT/PATCH operations.
-- **Response body examples** — realistic response payloads per HTTP status code, including error responses (4xx, 5xx).
-
----
-
-## Rate Limiting
-
-The system respects OpenRouter API limits:
-
-- **60 requests/minute** (configurable via `RATE_LIMIT_REQUESTS_PER_MINUTE`)
-- **100,000 tokens/minute** (configurable via `RATE_LIMIT_TOKENS_PER_MINUTE`)
-- Automatic retry with exponential backoff on failures.
-
----
-
-## Logging
-
-Logs are written to both the console (with color) and a daily rotating file under `logs/`:
-
-```
-logs/openapi_improver_2026-03-11.log
-```
-
-Set `LOG_LEVEL=DEBUG` in `.env` for verbose output including raw LLM responses.
