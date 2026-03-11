@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from src.agents.orchestrator_agent import OrchestratorAgent  # noqa: E402
+from src.agents.llm_enrichment_agent import LLMAuthenticationError  # noqa: E402
 from src.utils.config import Config  # noqa: E402
 from src.utils.logger import setup_logger  # noqa: E402
 
@@ -124,6 +125,15 @@ def main() -> None:
         orchestrator = OrchestratorAgent(spec_path=spec_path, llm_model=llm_model)
         output_path = orchestrator.run()
         logger.info("Done. Enriched specification saved to: %s", output_path)
+    except LLMAuthenticationError as exc:
+        # Authentication errors already have a detailed message logged by the agent.
+        # Exit immediately with a non-zero code — no stack trace needed.
+        logger.error(
+            "Pipeline aborted: %s\n"
+            "Action required: set a valid OPENROUTER_API_KEY in your .env file.",
+            exc,
+        )
+        sys.exit(1)
     except Exception as exc:  # noqa: BLE001
         logger.error("Pipeline failed: %s", exc, exc_info=True)
         sys.exit(1)

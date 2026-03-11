@@ -35,7 +35,15 @@ class SpecParserAgent:
             self.raw_spec = json.load(f)
         version = self.raw_spec.get("openapi", self.raw_spec.get("swagger", "unknown"))
         title = self.raw_spec.get("info", {}).get("title", "Unknown API")
+        servers = self.raw_spec.get("servers", [])
+        server_urls = [s.get("url", "") for s in servers]
         logger.info("Loaded spec: '%s' (OpenAPI %s)", title, version)
+        if server_urls:
+            logger.info(
+                "Spec declares server(s): %s — these will NOT be contacted. "
+                "Enrichment is performed via static analysis only.",
+                server_urls,
+            )
         return self.raw_spec
 
     def parse_endpoints(self) -> List[EndpointInfo]:

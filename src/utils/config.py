@@ -7,11 +7,16 @@ load_dotenv()
 class Config:
     """
     Central configuration class loaded from environment variables and .env file.
+    All LLM-provider settings use the OPENROUTER_* prefix to clearly identify
+    OpenRouter as the LLM provider. The OpenAI-compatible client is used
+    internally, but the credentials are OpenRouter-specific.
     """
 
-    # LLM
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_API_BASE: str = os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1")
+    # OpenRouter credentials
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_API_BASE: str = os.getenv("OPENROUTER_API_BASE", "https://openrouter.ai/api/v1")
+
+    # LLM model and sampling parameters
     LLM_MODEL: str = os.getenv("LLM_MODEL", "openai/gpt-4o-mini")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))
     LLM_SEED: int = int(os.getenv("LLM_SEED", "42"))
@@ -28,8 +33,18 @@ class Config:
 
     @classmethod
     def validate(cls) -> None:
-        """Raise ValueError if required configuration is missing."""
-        if not cls.OPENAI_API_KEY:
+        """Raise ValueError if required configuration is missing or invalid."""
+        key = cls.OPENROUTER_API_KEY.strip()
+        if not key:
             raise ValueError(
-                "OPENAI_API_KEY is not set. Please configure it in your .env file."
+                "OPENROUTER_API_KEY is not set.\n"
+                "  \u2192 Open your .env file and set OPENROUTER_API_KEY to your OpenRouter API key.\n"
+                "  \u2192 Obtain your key at: https://openrouter.ai/keys"
+            )
+        # Detect placeholder values copied verbatim from .env.example
+        if key.startswith("sk-or-v1-your") or key == "sk-or-v1-your-key-here":
+            raise ValueError(
+                "OPENROUTER_API_KEY appears to contain a placeholder value.\n"
+                "  \u2192 Replace it with your actual OpenRouter API key in the .env file.\n"
+                "  \u2192 Obtain your key at: https://openrouter.ai/keys"
             )

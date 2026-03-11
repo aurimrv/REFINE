@@ -3,19 +3,23 @@ LLMEnrichmentAgent
 ------------------
 Responsible for calling the LLM (via OpenAI-compatible API) to generate
 realistic examples for each endpoint and response code in the OpenAPI spec.
-Uses retry logic and rate limiting to handle API constraints gracefully.
+Uses retry logic and rate limiting to handle transient API errors gracefully.
+
+Non-retriable errors (401 Unauthorized, 403 Forbidden) cause an immediate
+failure with a clear diagnostic message rather than wasting retry attempts.
 """
 
 import json
-import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
-from openai import OpenAI
+from openai import OpenAI, AuthenticationError, PermissionDeniedError
+from openai import APIStatusError
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
+    retry_if_not_exception_type,
 )
 
 from src.models.openapi_models import EndpointInfo
@@ -25,8 +29,16 @@ from src.utils.rate_limiter import RateLimiter
 
 logger = setup_logger("llm_enrichment_agent")
 
+# HTTP status codes that should NOT be retried — they indicate a permanent
+# configuration problem (wrong/missing API key, insufficient permissions, etc.)
+NON_RETRIABLE_STATUS_CODES = {401, 403}
+
 SYSTEM_PROMPT = """You are an expert API documentation engineer specializing in OpenAPI Specification 3.x.
 Your task is to enrich an OpenAPI endpoint definition by adding realistic, clear, and meaningful examples.
+
+IMPORTANT: You must generate ALL examples purely by inference from the endpoint definition.
+Do NOT attempt to call, connect to, or access the API server in any way.
+The API server may not be running — this is a static documentation enrichment task.
 
 For EACH response code of the endpoint, you must generate:
 1. Realistic example values for ALL parameters (path, query, header, cookie).
@@ -58,6 +70,10 @@ If the endpoint has no request body, set "request_body_examples" to {}.
 """
 
 
+class LLMAuthenticationError(Exception):
+    """Raised when the LLM API returns a non-retriable authentication error."""
+
+
 class LLMEnrichmentAgent:
     """
     Agent that uses an LLM to generate realistic examples for OpenAPI endpoints.
@@ -66,8 +82,8 @@ class LLMEnrichmentAgent:
     def __init__(self, model: Optional[str] = None) -> None:
         self.model = model or Config.LLM_MODEL
         self.client = OpenAI(
-            api_key=Config.OPENAI_API_KEY,
-            base_url=Config.OPENAI_API_BASE,
+            api_key=Config.OPENROUTER_API_KEY,
+            base_url=Config.OPENROUTER_API_BASE,
         )
         self.rate_limiter = RateLimiter(Config.RATE_LIMIT_REQUESTS_PER_MINUTE)
         self.total_input_tokens = 0
@@ -75,13 +91,14 @@ class LLMEnrichmentAgent:
         logger.info(
             "LLMEnrichmentAgent initialized with model: %s (base_url: %s)",
             self.model,
-            Config.OPENAI_API_BASE,
+            Config.OPENROUTER_API_BASE,
         )
 
     def enrich_endpoint(self, endpoint: EndpointInfo, api_context: str) -> Dict[str, Any]:
         """
         Call the LLM to generate examples for a single endpoint.
         Returns a dict with parameter, request body, and response body examples.
+        Raises LLMAuthenticationError immediately on 401/403 — do not retry.
         """
         user_message = self._build_user_message(endpoint, api_context)
         logger.info(
@@ -121,23 +138,44 @@ class LLMEnrichmentAgent:
             min=Config.RETRY_DELAY,
             max=120,
         ),
-        retry=retry_if_exception_type(Exception),
+        # Do NOT retry on LLMAuthenticationError — it is a permanent failure.
+        # Retry only on transient errors (network issues, 429, 5xx, etc.).
+        retry=retry_if_not_exception_type(LLMAuthenticationError),
         reraise=True,
     )
     def _call_llm_with_retry(self, user_message: str) -> str:
-        """Call the LLM API with rate limiting and retry logic."""
+        """
+        Call the LLM API with rate limiting and retry logic.
+
+        Authentication errors (HTTP 401/403) are detected and re-raised as
+        LLMAuthenticationError to bypass the retry decorator and fail fast.
+        """
         self.rate_limiter.wait()
 
         logger.debug("Sending request to LLM...")
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=Config.LLM_TEMPERATURE,
-            seed=Config.LLM_SEED,
-        )
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_message},
+                ],
+                temperature=Config.LLM_TEMPERATURE,
+                seed=Config.LLM_SEED,
+            )
+        except (AuthenticationError, PermissionDeniedError) as exc:
+            # These are permanent failures — no point in retrying.
+            self._raise_auth_error(exc)
+        except APIStatusError as exc:
+            if exc.status_code in NON_RETRIABLE_STATUS_CODES:
+                self._raise_auth_error(exc)
+            # For other HTTP errors (429, 5xx), let tenacity retry.
+            logger.warning(
+                "LLM API returned HTTP %d — will retry if attempts remain. Detail: %s",
+                exc.status_code,
+                exc.message,
+            )
+            raise
 
         usage = response.usage
         if usage:
@@ -152,6 +190,23 @@ class LLMEnrichmentAgent:
         content = response.choices[0].message.content or ""
         return content.strip()
 
+    @staticmethod
+    def _raise_auth_error(exc: Exception) -> None:
+        """Log a clear diagnostic and raise LLMAuthenticationError."""
+        logger.error(
+            "Authentication failed when calling the LLM API.\n"
+            "  Cause   : %s\n"
+            "  Solution: Check that OPENROUTER_API_KEY in your .env file is set to a\n"
+            "            valid OpenRouter API key. OPENROUTER_API_BASE must point to\n"
+            "            https://openrouter.ai/api/v1\n"
+            "            Obtain your key at: https://openrouter.ai/keys",
+            exc,
+        )
+        raise LLMAuthenticationError(
+            "LLM API authentication failed (HTTP 401/403). "
+            "Verify OPENROUTER_API_KEY and OPENROUTER_API_BASE in your .env file."
+        ) from exc
+
     def _parse_json_response(
         self, response_text: str, endpoint: EndpointInfo
     ) -> Dict[str, Any]:
@@ -163,14 +218,17 @@ class LLMEnrichmentAgent:
         cleaned = response_text
         if cleaned.startswith("```"):
             lines = cleaned.splitlines()
-            # Remove first and last fence lines
             start = 1 if lines[0].startswith("```") else 0
             end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
             cleaned = "\n".join(lines[start:end])
 
         try:
             data = json.loads(cleaned)
-            logger.debug("Successfully parsed LLM response for %s %s.", endpoint.method, endpoint.path)
+            logger.debug(
+                "Successfully parsed LLM response for %s %s.",
+                endpoint.method,
+                endpoint.path,
+            )
             return data
         except json.JSONDecodeError as exc:
             logger.error(

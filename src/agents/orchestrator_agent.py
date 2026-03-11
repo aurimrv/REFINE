@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.agents.spec_parser_agent import SpecParserAgent
-from src.agents.llm_enrichment_agent import LLMEnrichmentAgent
+from src.agents.llm_enrichment_agent import LLMEnrichmentAgent, LLMAuthenticationError
 from src.agents.spec_writer_agent import SpecWriterAgent
 from src.models.openapi_models import EndpointInfo
 from src.utils.config import Config
@@ -52,12 +52,21 @@ class OrchestratorAgent:
             logger.warning("No endpoints found in the specification. Aborting.")
             raise ValueError("No endpoints found in the provided OpenAPI specification.")
 
-        # Build a short API context description for the LLM
+        # Build a short API context description for the LLM.
+        # NOTE: The 'servers' URLs from the spec are intentionally excluded from
+        # the context to make clear that NO HTTP calls are made to the described
+        # API. All enrichment is performed through static analysis of the spec
+        # file combined with LLM inference — the target API does NOT need to be
+        # running or reachable.
         api_info = raw_spec.get("info", {})
         api_context = (
             f"API Title: {api_info.get('title', 'Unknown')}\n"
             f"API Version: {api_info.get('version', 'Unknown')}\n"
             f"Description: {api_info.get('description', 'N/A')}"
+        )
+        logger.info(
+            "Static analysis mode: NO HTTP calls will be made to the API servers "
+            "described in the spec. Enrichment is based solely on the spec file content."
         )
 
         # --- Step 2: Enrich each endpoint via LLM ---
@@ -75,6 +84,10 @@ class OrchestratorAgent:
             try:
                 examples = enrichment_agent.enrich_endpoint(endpoint, api_context)
                 enrichments.append((endpoint, examples))
+            except LLMAuthenticationError:
+                # Authentication errors are permanent — abort the entire pipeline
+                # immediately instead of wasting time on all remaining endpoints.
+                raise
             except Exception as exc:  # noqa: BLE001
                 logger.error(
                     "Failed to enrich endpoint %s %s: %s. Skipping.",

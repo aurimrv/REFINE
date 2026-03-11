@@ -2,6 +2,8 @@
 
 A multi-agent Python system that analyzes an OpenAPI specification file and generates an enriched version with **realistic examples** for every endpoint and response code, facilitating the creation of test cases.
 
+> **The described API does NOT need to be running or reachable.** All enrichment is performed through **static analysis** of the specification file combined with LLM inference. No HTTP calls are made to the API servers declared in the spec.
+
 ---
 
 ## Architecture
@@ -61,8 +63,8 @@ Key settings in `.env`:
 
 | Variable | Description | Default |
 |---|---|---|
-| `OPENAI_API_KEY` | Your OpenRouter (or OpenAI) API key | *(required)* |
-| `OPENAI_API_BASE` | API base URL | `https://openrouter.ai/api/v1` |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key (get one at [openrouter.ai/keys](https://openrouter.ai/keys)) | *(required)* |
+| `OPENROUTER_API_BASE` | OpenRouter API base URL | `https://openrouter.ai/api/v1` |
 | `LLM_MODEL` | LLM model identifier | `openai/gpt-4o-mini` |
 | `LLM_TEMPERATURE` | Sampling temperature | `0.7` |
 | `LLM_SEED` | Reproducibility seed | `42` |
