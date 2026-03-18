@@ -171,6 +171,8 @@ class OrchestratorAgent:
                         responses={code: {} for code in impl_ep.response_codes},
                         response_codes=impl_ep.response_codes,
                     )
+                    # Mark as impl-only so SpecWriterAgent inserts it into the paths dict
+                    extra_ep._impl_only = True  # type: ignore[attr-defined]
                     spec_endpoints.append(extra_ep)
                     logger.info(
                         "Added impl-only endpoint to enrichment queue: %s %s",
