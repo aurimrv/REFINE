@@ -33,41 +33,73 @@ logger = setup_logger("llm_enrichment_agent")
 # configuration problem (wrong/missing API key, insufficient permissions, etc.)
 NON_RETRIABLE_STATUS_CODES = {401, 403}
 
-SYSTEM_PROMPT = """You are an expert API documentation engineer specializing in OpenAPI Specification 3.x.
+def _build_system_prompt(openapi_version: str) -> str:
+    """
+    Build the system prompt for the LLM, embedding the target OpenAPI version
+    so the model generates structurally compatible output from the start.
+    """
+    major = int(openapi_version.split(".")[0])
+
+    if major >= 3:
+        body_param_rule = (
+            f"- OpenAPI {openapi_version} DOES NOT support 'in: body' or 'in: formData' "
+            "parameters. Request bodies MUST be declared as 'requestBody' on the operation, "
+            "NOT as a parameter. If the endpoint accepts a request body, include it in "
+            "'request_body_examples' only."
+        )
+        param_locations = "path, query, header, or cookie"
+    else:
+        body_param_rule = (
+            f"- OpenAPI {openapi_version}: request bodies are declared as parameters "
+            "with 'in: body'. Include body examples in 'request_body_examples'."
+        )
+        param_locations = "path, query, header, cookie, or body"
+
+    return f"""You are an expert API documentation engineer specializing in OpenAPI Specification {openapi_version}.
 Your task is to enrich an OpenAPI endpoint definition by adding realistic, clear, and meaningful examples.
+
+Target OpenAPI version: {openapi_version}
 
 IMPORTANT: You must generate ALL examples purely by inference from the endpoint definition.
 Do NOT attempt to call, connect to, or access the API server in any way.
 The API server may not be running — this is a static documentation enrichment task.
 
 For EACH response code of the endpoint, you must generate:
-1. Realistic example values for ALL parameters (path, query, header, cookie).
+1. Realistic example values for ALL parameters ({param_locations}).
 2. A realistic example request body (if applicable).
 3. A realistic example response body that matches the HTTP status code semantics.
 
-Rules:
+OpenAPI {openapi_version} compatibility rules (STRICTLY FOLLOW):
+{body_param_rule}
+- Parameter 'in' field MUST be one of: {param_locations}.
+- Response code keys MUST be strings (e.g. "200", "404"), never integers.
+- Do NOT add fields that are not part of the OpenAPI {openapi_version} specification.
 - Use realistic data (real country names, valid ISO codes, real currencies, etc.) — NOT placeholder values like "string" or "example".
 - For error responses (4xx, 5xx), generate appropriate error messages.
 - Return ONLY a valid JSON object. Do NOT include markdown code fences or any extra text.
 - The JSON must follow this exact structure:
 
-{
-  "parameters_examples": {
-    "<response_code>": {
+{{
+  "parameters_examples": {{
+    "<response_code>": {{
       "<param_name>": <example_value>
-    }
-  },
-  "request_body_examples": {
-    "<response_code>": { ... }
-  },
-  "response_body_examples": {
-    "<response_code>": { ... }
-  }
-}
+    }}
+  }},
+  "request_body_examples": {{
+    "<response_code>": {{ ... }}
+  }},
+  "response_body_examples": {{
+    "<response_code>": {{ ... }}
+  }}
+}}
 
-If the endpoint has no parameters, set "parameters_examples" to {}.
-If the endpoint has no request body, set "request_body_examples" to {}.
+If the endpoint has no parameters, set "parameters_examples" to {{}}.
+If the endpoint has no request body, set "request_body_examples" to {{}}.
 """
+
+
+# Build the system prompt once at module load time using the configured version
+SYSTEM_PROMPT = _build_system_prompt(Config.OPENAPI_VERSION)
 
 
 class LLMAuthenticationError(Exception):

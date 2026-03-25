@@ -25,6 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from src.agents.spec_parser_agent import SpecParserAgent
 from src.agents.llm_enrichment_agent import LLMEnrichmentAgent, LLMAuthenticationError
 from src.agents.spec_writer_agent import SpecWriterAgent
+from src.agents.spec_validator_agent import SpecValidatorAgent
 from src.agents.source_analyzer_agent import SourceAnalyzerAgent, ImplementedEndpoint
 from src.agents.discrepancy_reporter_agent import DiscrepancyReporterAgent
 from src.models.openapi_models import EndpointInfo
@@ -262,7 +263,42 @@ class OrchestratorAgent:
         output_path = writer.write(enriched_spec, timestamp=self._run_timestamp)
 
         # ----------------------------------------------------------------
-        # Step 6: Log token usage
+        # Step 6: Validate and auto-repair the enriched spec
+        # ----------------------------------------------------------------
+        logger.info(
+            "Validating enriched spec against OpenAPI %s schema...",
+            Config.OPENAPI_VERSION,
+        )
+        validator = SpecValidatorAgent(openapi_version=Config.OPENAPI_VERSION)
+        repaired_spec, repairs_applied, remaining_errors = validator.validate_and_repair(
+            enriched_spec
+        )
+
+        if repairs_applied:
+            # Overwrite the output file with the repaired version
+            import json as _json
+            with open(output_path, "w", encoding="utf-8") as _f:
+                _json.dump(repaired_spec, _f, indent=2, ensure_ascii=False)
+            logger.info(
+                "Repaired spec written to: %s (%d auto-repair(s) applied)",
+                output_path,
+                len(repairs_applied),
+            )
+
+        if remaining_errors:
+            logger.warning(
+                "%d validation error(s) remain after auto-repair. "
+                "Manual review required.",
+                len(remaining_errors),
+            )
+        else:
+            logger.info(
+                "Spec is fully compliant with OpenAPI %s.",
+                Config.OPENAPI_VERSION,
+            )
+
+        # ----------------------------------------------------------------
+        # Step 7: Log token usage
         # ----------------------------------------------------------------
         llm_usage = enrichment_agent.get_token_usage()
         total_input_tokens += llm_usage["input_tokens"]
@@ -277,6 +313,11 @@ class OrchestratorAgent:
         logger.info("Enriched spec  : %s", output_path)
         if discrepancy_report_path:
             logger.info("Discrepancy rpt: %s", discrepancy_report_path)
+        logger.info("OpenAPI version: %s", Config.OPENAPI_VERSION)
+        logger.info(
+            "Validation     : %s",
+            "PASSED" if not remaining_errors else f"{len(remaining_errors)} error(s) remain",
+        )
         logger.info(
             "Total tokens   — input: %d, output: %d",
             total_input_tokens,
