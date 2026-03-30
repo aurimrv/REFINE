@@ -79,6 +79,9 @@ class OrchestratorAgent:
         parser = SpecParserAgent(self.spec_path)
         raw_spec = parser.load()
         spec_endpoints: List[EndpointInfo] = parser.parse_endpoints()
+        # Capture the actual version of the input spec so every downstream
+        # agent operates in the correct compatibility mode.
+        spec_version: str = parser.get_spec_version()
 
         if not spec_endpoints:
             logger.warning("No endpoints found in the specification. Aborting.")
@@ -226,7 +229,7 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         # Step 4: Enrich each endpoint via LLM
         # ----------------------------------------------------------------
-        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model)
+        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model, spec_version=spec_version)
         enrichments: List[Tuple[EndpointInfo, Dict[str, Any]]] = []
 
         for idx, endpoint in enumerate(spec_endpoints, start=1):
@@ -258,7 +261,7 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         # Step 5: Merge and write the enriched spec
         # ----------------------------------------------------------------
-        writer = SpecWriterAgent(raw_spec, self.spec_path)
+        writer = SpecWriterAgent(raw_spec, self.spec_path, spec_version=spec_version)
         enriched_spec = writer.merge_examples(enrichments)
         output_path = writer.write(enriched_spec, timestamp=self._run_timestamp)
 
@@ -267,9 +270,9 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         logger.info(
             "Validating enriched spec against OpenAPI %s schema...",
-            Config.OPENAPI_VERSION,
+            spec_version,
         )
-        validator = SpecValidatorAgent(openapi_version=Config.OPENAPI_VERSION)
+        validator = SpecValidatorAgent(openapi_version=spec_version)
         repaired_spec, repairs_applied, remaining_errors = validator.validate_and_repair(
             enriched_spec
         )

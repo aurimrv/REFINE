@@ -29,9 +29,18 @@ class SpecWriterAgent:
     and persists the improved specification to disk.
     """
 
-    def __init__(self, original_spec: Dict[str, Any], spec_path: Path) -> None:
+    def __init__(self, original_spec: Dict[str, Any], spec_path: Path,
+                 spec_version: Optional[str] = None) -> None:
         self.original_spec = original_spec
         self.spec_path = spec_path
+        # Detect major version from the spec itself, falling back to the argument.
+        raw_version = original_spec.get("openapi") or original_spec.get("swagger", "3.0")
+        detected = str(spec_version or raw_version)
+        try:
+            self.spec_major_version: int = int(detected.split(".")[0])
+        except (ValueError, IndexError):
+            self.spec_major_version = 3
+        logger.info("SpecWriterAgent: operating in OpenAPI %s mode.", detected)
 
     # ------------------------------------------------------------------
     # Public API
@@ -151,11 +160,22 @@ class SpecWriterAgent:
                     for param in operation["parameters"]:
                         param_name = param.get("name")
                         if param_name and param_name in code_param_examples:
-                            param["example"] = code_param_examples[param_name]
+                            if self.spec_major_version >= 3:
+                                # OAS 3.x: 'example' is a valid parameter field.
+                                param["example"] = code_param_examples[param_name]
+                            # Swagger 2.0: 'example' is NOT in the parameter
+                            # sub-schemas (additionalProperties: false) — skip
+                            # inline injection to keep the spec valid.
+                # Always store the full example map as a vendor extension so
+                # tooling can consume it regardless of spec version.
                 operation["x-parameter-examples"] = param_examples
 
             # ---- Enrich request body ----
-            if req_body_examples and operation.get("requestBody"):
+            # OAS 3.x: requestBody is a first-class field.
+            # Swagger 2.0: there is no requestBody — body parameters were already
+            # represented as formData/body parameters and are handled via
+            # x-parameter-examples. Nothing to inject here for 2.0.
+            if req_body_examples and self.spec_major_version >= 3 and operation.get("requestBody"):
                 content = operation["requestBody"].get("content", {})
                 for _media_type, media_obj in content.items():
                     if isinstance(media_obj, dict):
@@ -174,21 +194,30 @@ class SpecWriterAgent:
                     example_value = response_body_examples.get("default")
 
                 if example_value is not None:
-                    content = response_obj.get("content")
-                    if content:
-                        for _media_type, media_obj in content.items():
-                            if isinstance(media_obj, dict):
-                                media_obj["examples"] = {
-                                    f"example_{code}": {"value": example_value}
-                                }
-                    else:
-                        response_obj["content"] = {
-                            "application/json": {
-                                "examples": {
-                                    f"example_{code}": {"value": example_value}
+                    if self.spec_major_version >= 3:
+                        # OAS 3.x: examples go inside response.content.<media_type>.examples
+                        content = response_obj.get("content")
+                        if content:
+                            for _media_type, media_obj in content.items():
+                                if isinstance(media_obj, dict):
+                                    media_obj["examples"] = {
+                                        f"example_{code}": {"value": example_value}
+                                    }
+                        else:
+                            response_obj["content"] = {
+                                "application/json": {
+                                    "examples": {
+                                        f"example_{code}": {"value": example_value}
+                                    }
                                 }
                             }
-                        }
+                    else:
+                        # Swagger 2.0: the response object has no 'content' field.
+                        # Store examples as a vendor extension (x-examples) so the
+                        # document stays valid against the Swagger 2.0 schema.
+                        response_obj.setdefault("x-examples", {})[
+                            f"example_{code}"
+                        ] = {"value": example_value}
 
             logger.debug(
                 "Merged examples for endpoint: %s %s", endpoint.method, endpoint.path

@@ -20,24 +20,41 @@ HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options", "tra
 
 class SpecParserAgent:
     """
-    Agent that parses an OpenAPI 3.x specification file and extracts
+    Agent that parses an OpenAPI 2.x/3.x specification file and extracts
     structured information about every endpoint.
     """
 
     def __init__(self, spec_path: Path) -> None:
         self.spec_path = spec_path
         self.raw_spec: Dict[str, Any] = {}
+        # Populated by load(): "2.0", "3.0.x", "3.1.x", etc.
+        self.spec_version: str = ""
+        # Major version integer: 2 or 3
+        self.spec_major_version: int = 3
 
     def load(self) -> Dict[str, Any]:
         """Load the OpenAPI JSON file from disk and return the raw dict."""
         logger.info("Loading OpenAPI specification from: %s", self.spec_path)
         with open(self.spec_path, "r", encoding="utf-8") as f:
             self.raw_spec = json.load(f)
-        version = self.raw_spec.get("openapi", self.raw_spec.get("swagger", "unknown"))
+
+        # Detect version: OAS 3.x uses "openapi", Swagger 2.x uses "swagger"
+        raw_version = self.raw_spec.get("openapi") or self.raw_spec.get("swagger", "unknown")
+        self.spec_version = str(raw_version)
+        try:
+            self.spec_major_version = int(self.spec_version.split(".")[0])
+        except (ValueError, IndexError):
+            self.spec_major_version = 3
+
         title = self.raw_spec.get("info", {}).get("title", "Unknown API")
         servers = self.raw_spec.get("servers", [])
         server_urls = [s.get("url", "") for s in servers]
-        logger.info("Loaded spec: '%s' (OpenAPI %s)", title, version)
+        logger.info("Loaded spec: '%s' (OpenAPI %s)", title, self.spec_version)
+        if self.spec_major_version == 2:
+            logger.info(
+                "Detected Swagger/OpenAPI 2.0 specification. "
+                "Pipeline will operate in Swagger 2.0 compatibility mode."
+            )
         if server_urls:
             logger.info(
                 "Spec declares server(s): %s — these will NOT be contacted. "
@@ -45,6 +62,10 @@ class SpecParserAgent:
                 server_urls,
             )
         return self.raw_spec
+
+    def get_spec_version(self) -> str:
+        """Return the raw version string detected from the spec (e.g. '2.0', '3.0.3')."""
+        return self.spec_version
 
     def parse_endpoints(self) -> List[EndpointInfo]:
         """
@@ -67,7 +88,9 @@ class SpecParserAgent:
                 if not isinstance(operation, dict):
                     continue
 
-                # Merge path-level and operation-level parameters
+                # Merge path-level and operation-level parameters,
+                # deduplicating by (name, in) to fix specs that list the same
+                # path parameter twice (common in JAX-RS auto-generated specs).
                 op_params: List[Dict[str, Any]] = operation.get("parameters", [])
                 merged_params = _merge_parameters(path_level_params, op_params)
 
