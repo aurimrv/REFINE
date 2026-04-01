@@ -3,8 +3,15 @@ LLMEnrichmentAgent
 ------------------
 Responsible for calling the LLM (via OpenAI-compatible API) to generate
 realistic examples for each endpoint and response code in the OpenAPI spec.
-Uses retry logic and rate limiting to handle transient API errors gracefully.
 
+For each endpoint/retcode pair, the agent generates MULTIPLE named examples:
+  - Success codes (2xx): at least 2 examples covering typical and edge cases.
+  - Error codes (4xx/5xx): at least 3 examples, including variations that use
+    wrong data types (e.g. string where integer is expected), boundary values
+    (zero, negative, very large), and null/missing values — to maximize the
+    chance of actually triggering the error when the endpoint is called.
+
+Uses retry logic and rate limiting to handle transient API errors gracefully.
 Non-retriable errors (401 Unauthorized, 403 Forbidden) cause an immediate
 failure with a clear diagnostic message rather than wasting retry attempts.
 """
@@ -18,7 +25,6 @@ from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
     retry_if_not_exception_type,
 )
 
@@ -32,6 +38,7 @@ logger = setup_logger("llm_enrichment_agent")
 # HTTP status codes that should NOT be retried — they indicate a permanent
 # configuration problem (wrong/missing API key, insufficient permissions, etc.)
 NON_RETRIABLE_STATUS_CODES = {401, 403}
+
 
 def _build_system_prompt(openapi_version: str) -> str:
     """
@@ -64,10 +71,20 @@ IMPORTANT: You must generate ALL examples purely by inference from the endpoint 
 Do NOT attempt to call, connect to, or access the API server in any way.
 The API server may not be running — this is a static documentation enrichment task.
 
-For EACH response code of the endpoint, you must generate:
-1. Realistic example values for ALL parameters ({param_locations}).
-2. A realistic example request body (if applicable).
-3. A realistic example response body that matches the HTTP status code semantics.
+For EACH response code of the endpoint, you must generate MULTIPLE named examples:
+
+For SUCCESS codes (2xx):
+  - Generate at least 2 named examples.
+  - "typical": realistic, representative values that would normally succeed.
+  - "edge_case": boundary or unusual but still valid values (e.g. minimum valid value, maximum valid value, empty list, single-item list).
+
+For ERROR codes (4xx/5xx):
+  - Generate at least 3 named examples, each designed to actually trigger the error.
+  - Use DIFFERENT strategies per example to maximize coverage:
+    a) "invalid_type": use a value of the WRONG data type (e.g. a string like "abc" where an integer is expected, or a boolean where a number is expected).
+    b) "boundary_violation": use a value that violates a numeric boundary (e.g. negative number, zero when positive is required, value exceeding maximum).
+    c) "null_or_missing": use null or an empty string for a required parameter.
+  - These examples are intentionally invalid — they SHOULD cause the error response.
 
 OpenAPI {openapi_version} compatibility rules (STRICTLY FOLLOW):
 {body_param_rule}
@@ -75,26 +92,45 @@ OpenAPI {openapi_version} compatibility rules (STRICTLY FOLLOW):
 - Response code keys MUST be strings (e.g. "200", "404"), never integers.
 - Do NOT add fields that are not part of the OpenAPI {openapi_version} specification.
 - Use realistic data (real country names, valid ISO codes, real currencies, etc.) — NOT placeholder values like "string" or "example".
-- For error responses (4xx, 5xx), generate appropriate error messages.
 - Return ONLY a valid JSON object. Do NOT include markdown code fences or any extra text.
-- The JSON must follow this exact structure:
+- The JSON must follow this EXACT structure:
 
 {{
   "parameters_examples": {{
-    "<response_code>": {{
-      "<param_name>": <example_value>
-    }}
+    "<response_code>": [
+      {{
+        "_name": "<example_name>",
+        "<param_name>": <example_value>,
+        "<param_name2>": <example_value2>
+      }},
+      {{
+        "_name": "<another_example_name>",
+        "<param_name>": <example_value>,
+        "<param_name2>": <example_value2>
+      }}
+    ]
   }},
   "request_body_examples": {{
-    "<response_code>": {{ ... }}
+    "<response_code>": [
+      {{
+        "_name": "<example_name>",
+        "value": {{ ... }}
+      }}
+    ]
   }},
   "response_body_examples": {{
     "<response_code>": {{ ... }}
   }}
 }}
 
-If the endpoint has no parameters, set "parameters_examples" to {{}}.
-If the endpoint has no request body, set "request_body_examples" to {{}}.
+IMPORTANT NOTES on the structure:
+- "parameters_examples" maps each response code to a LIST of example objects.
+- Each example object MUST have a "_name" field (string) identifying the example.
+- The remaining fields in each example object are the parameter name-value pairs.
+- "request_body_examples" maps each response code to a LIST of example objects, each with "_name" and "value".
+- "response_body_examples" maps each response code to a SINGLE representative response body object (not a list).
+- If the endpoint has no parameters, set "parameters_examples" to {{}}.
+- If the endpoint has no request body, set "request_body_examples" to {{}}.
 """
 
 
@@ -108,7 +144,8 @@ class LLMAuthenticationError(Exception):
 
 class LLMEnrichmentAgent:
     """
-    Agent that uses an LLM to generate realistic examples for OpenAPI endpoints.
+    Agent that uses an LLM to generate realistic, multiple examples per
+    endpoint/retcode pair for OpenAPI endpoints.
     """
 
     def __init__(self, model: Optional[str] = None) -> None:
@@ -128,7 +165,7 @@ class LLMEnrichmentAgent:
 
     def enrich_endpoint(self, endpoint: EndpointInfo, api_context: str) -> Dict[str, Any]:
         """
-        Call the LLM to generate examples for a single endpoint.
+        Call the LLM to generate multiple examples for a single endpoint.
         Returns a dict with parameter, request body, and response body examples.
         Raises LLMAuthenticationError immediately on 401/403 — do not retry.
         """
@@ -150,6 +187,24 @@ class LLMEnrichmentAgent:
         req_body_info = json.dumps(endpoint.request_body, indent=2) if endpoint.request_body else "None"
         responses_info = json.dumps(endpoint.responses, indent=2)
 
+        # Classify response codes to guide the LLM
+        success_codes = [c for c in endpoint.response_codes if str(c).startswith(("2",))]
+        error_codes = [c for c in endpoint.response_codes
+                       if str(c).startswith(("4", "5")) or str(c) == "default"]
+
+        guidance = ""
+        if error_codes:
+            guidance = (
+                f"\n\nFor error codes {error_codes}: generate at least 3 named examples each, "
+                "using wrong data types, boundary violations, and null/missing values as described "
+                "in the system instructions. These examples are intentionally invalid inputs."
+            )
+        if success_codes:
+            guidance += (
+                f"\n\nFor success codes {success_codes}: generate at least 2 named examples "
+                "('typical' and 'edge_case') with realistic valid values."
+            )
+
         return (
             f"API Context: {api_context}\n\n"
             f"Endpoint: {endpoint.method} {endpoint.path}\n"
@@ -159,8 +214,10 @@ class LLMEnrichmentAgent:
             f"Parameters:\n{params_info}\n\n"
             f"Request Body:\n{req_body_info}\n\n"
             f"Responses:\n{responses_info}\n\n"
-            f"Response codes to cover: {endpoint.response_codes}\n\n"
-            "Generate realistic examples for ALL response codes listed above."
+            f"Response codes to cover: {endpoint.response_codes}"
+            f"{guidance}\n\n"
+            "Generate multiple named examples for ALL response codes listed above, "
+            "following the exact JSON structure specified in the system instructions."
         )
 
     @retry(
@@ -171,7 +228,6 @@ class LLMEnrichmentAgent:
             max=120,
         ),
         # Do NOT retry on LLMAuthenticationError — it is a permanent failure.
-        # Retry only on transient errors (network issues, 429, 5xx, etc.).
         retry=retry_if_not_exception_type(LLMAuthenticationError),
         reraise=True,
     )
@@ -196,12 +252,10 @@ class LLMEnrichmentAgent:
                 seed=Config.LLM_SEED,
             )
         except (AuthenticationError, PermissionDeniedError) as exc:
-            # These are permanent failures — no point in retrying.
             self._raise_auth_error(exc)
         except APIStatusError as exc:
             if exc.status_code in NON_RETRIABLE_STATUS_CODES:
                 self._raise_auth_error(exc)
-            # For other HTTP errors (429, 5xx), let tenacity retry.
             logger.warning(
                 "LLM API returned HTTP %d — will retry if attempts remain. Detail: %s",
                 exc.status_code,
@@ -244,6 +298,9 @@ class LLMEnrichmentAgent:
     ) -> Dict[str, Any]:
         """
         Parse the LLM JSON response, stripping any accidental markdown fences.
+        Normalises the parameters_examples and request_body_examples fields to
+        always use the list-of-named-examples structure, even if the LLM returns
+        the old single-dict format (for backward compatibility).
         Returns an empty structure on failure.
         """
         # Sanitize: remove markdown code fences if present
@@ -256,12 +313,6 @@ class LLMEnrichmentAgent:
 
         try:
             data = json.loads(cleaned)
-            logger.debug(
-                "Successfully parsed LLM response for %s %s.",
-                endpoint.method,
-                endpoint.path,
-            )
-            return data
         except json.JSONDecodeError as exc:
             logger.error(
                 "Failed to parse LLM JSON response for %s %s: %s",
@@ -275,6 +326,40 @@ class LLMEnrichmentAgent:
                 "request_body_examples": {},
                 "response_body_examples": {},
             }
+
+        # Normalise parameters_examples: ensure each retcode maps to a list
+        param_ex = data.get("parameters_examples", {})
+        if isinstance(param_ex, dict):
+            for code, value in param_ex.items():
+                if isinstance(value, dict):
+                    # Old format: single dict without _name — wrap in a list
+                    if "_name" not in value:
+                        param_ex[code] = [{"_name": "example_1", **value}]
+                    else:
+                        param_ex[code] = [value]
+                elif not isinstance(value, list):
+                    param_ex[code] = []
+        data["parameters_examples"] = param_ex
+
+        # Normalise request_body_examples: ensure each retcode maps to a list
+        req_ex = data.get("request_body_examples", {})
+        if isinstance(req_ex, dict):
+            for code, value in req_ex.items():
+                if isinstance(value, dict):
+                    if "_name" not in value:
+                        req_ex[code] = [{"_name": "example_1", "value": value}]
+                    else:
+                        req_ex[code] = [value]
+                elif not isinstance(value, list):
+                    req_ex[code] = []
+        data["request_body_examples"] = req_ex
+
+        logger.debug(
+            "Successfully parsed LLM response for %s %s.",
+            endpoint.method,
+            endpoint.path,
+        )
+        return data
 
     def get_token_usage(self) -> Dict[str, int]:
         """Return accumulated token usage across all LLM calls."""

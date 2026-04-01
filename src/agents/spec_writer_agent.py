@@ -206,13 +206,32 @@ class SpecWriterAgent:
 
             # ---- Enrich parameters ----
             if param_examples and operation.get("parameters"):
-                first_code = next(iter(param_examples), None)
-                if first_code:
-                    code_param_examples = param_examples[first_code]
-                    for param in operation["parameters"]:
-                        param_name = param.get("name")
-                        if param_name and param_name in code_param_examples:
-                            param["example"] = code_param_examples[param_name]
+                # Set the scalar 'example' field on each parameter using the
+                # first 'typical' (or first available) example for the first
+                # success code — this keeps Swagger UI / editor previews working.
+                first_success_code = next(
+                    (c for c in param_examples if str(c).startswith("2")),
+                    next(iter(param_examples), None),
+                )
+                if first_success_code:
+                    examples_list = param_examples[first_success_code]
+                    # Pick the example named 'typical', or fall back to the first one
+                    if isinstance(examples_list, list) and examples_list:
+                        typical = next(
+                            (e for e in examples_list if e.get("_name") == "typical"),
+                            examples_list[0],
+                        )
+                        for param in operation["parameters"]:
+                            param_name = param.get("name")
+                            if param_name and param_name in typical:
+                                param["example"] = typical[param_name]
+                    elif isinstance(examples_list, dict):
+                        # Backward-compat: single dict (no _name)
+                        for param in operation["parameters"]:
+                            param_name = param.get("name")
+                            if param_name and param_name in examples_list:
+                                param["example"] = examples_list[param_name]
+                # Store the full multi-example structure as x-parameter-examples
                 operation["x-parameter-examples"] = param_examples
 
             # ---- Enrich request body ----
@@ -222,20 +241,36 @@ class SpecWriterAgent:
                     content = operation["requestBody"].get("content", {})
                     for _media_type, media_obj in content.items():
                         if isinstance(media_obj, dict):
-                            media_obj["examples"] = {
-                                f"example_{code}": {"value": val}
-                                for code, val in req_body_examples.items()
-                                if val
-                            }
+                            merged: Dict[str, Any] = {}
+                            for code, val in req_body_examples.items():
+                                if not val:
+                                    continue
+                                if isinstance(val, list):
+                                    # New format: list of named examples
+                                    for ex in val:
+                                        name = ex.get("_name", "example")
+                                        body_val = ex.get("value", {k: v for k, v in ex.items() if k != "_name"})
+                                        merged[f"{code}_{name}"] = {"value": body_val}
+                                else:
+                                    # Old format: single dict
+                                    merged[f"example_{code}"] = {"value": val}
+                            media_obj["examples"] = merged
                 elif self._spec_major_version < 3:
                     # Swagger 2.0: body parameters carry examples via x-examples extension
                     for param in operation.get("parameters", []):
                         if isinstance(param, dict) and param.get("in") == "body":
-                            param["x-examples"] = {
-                                f"example_{code}": {"value": val}
-                                for code, val in req_body_examples.items()
-                                if val
-                            }
+                            merged_v2: Dict[str, Any] = {}
+                            for code, val in req_body_examples.items():
+                                if not val:
+                                    continue
+                                if isinstance(val, list):
+                                    for ex in val:
+                                        name = ex.get("_name", "example")
+                                        body_val = ex.get("value", {k: v for k, v in ex.items() if k != "_name"})
+                                        merged_v2[f"{code}_{name}"] = {"value": body_val}
+                                else:
+                                    merged_v2[f"example_{code}"] = {"value": val}
+                            param["x-examples"] = merged_v2
 
             # ---- Enrich responses ----
             for code, response_obj in responses.items():
