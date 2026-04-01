@@ -79,9 +79,6 @@ class OrchestratorAgent:
         parser = SpecParserAgent(self.spec_path)
         raw_spec = parser.load()
         spec_endpoints: List[EndpointInfo] = parser.parse_endpoints()
-        # Capture the actual version of the input spec so every downstream
-        # agent operates in the correct compatibility mode.
-        spec_version: str = parser.get_spec_version()
 
         if not spec_endpoints:
             logger.warning("No endpoints found in the specification. Aborting.")
@@ -184,40 +181,61 @@ class OrchestratorAgent:
                         impl_ep.path,
                     )
 
-            # Resolve 'default' retcodes: when the spec uses 'default' as a catch-all
-            # and the impl has explicit error codes beyond 200, replace 'default' with
-            # the real codes so the LLM generates targeted examples for each one.
-            # If the impl only has 200 (or no extra codes), keep 'default' as-is.
+            # Align retcodes: replace spec retcodes with impl retcodes for every
+            # endpoint where a mismatch exists.  Two sub-cases are handled:
+            #
+            # Case A — spec uses 'default' as a catch-all:
+            #   • impl has explicit error codes beyond 2xx  → replace 'default' with
+            #     those codes so the LLM generates targeted examples.
+            #   • impl only has 2xx codes                  → keep 'default' as-is.
+            #
+            # Case B — spec has explicit retcodes (e.g. 200, 401, 403, 404) but
+            #   the impl has different explicit codes (e.g. 200, 400):
+            #   → replace spec retcodes entirely with impl retcodes so the final
+            #     spec is 100% aligned with the implementation.
             for ep in spec_endpoints:
+                key = (ep.method.upper(), ep.path.rstrip("/").lower())
+                impl_ep = impl_lookup.get(key)
+                if not impl_ep:
+                    continue
+
                 if "default" in ep.response_codes:
-                    key = (ep.method.upper(), ep.path.rstrip("/").lower())
-                    impl_ep = impl_lookup.get(key)
-                    if impl_ep:
-                        impl_extra = [
-                            c for c in impl_ep.response_codes
-                            if c not in ("200", "201", "204")
-                        ]
-                        if impl_extra:
-                            # Replace 'default' with the explicit error codes from impl
-                            new_codes = [
-                                c for c in ep.response_codes if c != "default"
-                            ] + impl_extra
-                            # Deduplicate while preserving order
-                            seen_codes: set = set()
-                            deduped: List[str] = []
-                            for c in new_codes:
-                                if c not in seen_codes:
-                                    deduped.append(c)
-                                    seen_codes.add(c)
-                            old_codes = ep.response_codes[:]
-                            ep.response_codes = deduped
-                            # Mark the endpoint so SpecWriterAgent knows to expand
-                            # 'default' into the real codes in the responses dict
-                            ep._impl_retcodes_replacing_default = impl_extra  # type: ignore[attr-defined]
-                            logger.info(
-                                "Resolved 'default' for %s %s: %s → %s",
-                                ep.method, ep.path, old_codes, deduped,
-                            )
+                    # Case A — spec uses 'default'
+                    impl_extra = [
+                        c for c in impl_ep.response_codes
+                        if c not in ("200", "201", "204")
+                    ]
+                    if impl_extra:
+                        new_codes = [
+                            c for c in ep.response_codes if c != "default"
+                        ] + impl_extra
+                        seen_codes: set = set()
+                        deduped: List[str] = []
+                        for c in new_codes:
+                            if c not in seen_codes:
+                                deduped.append(c)
+                                seen_codes.add(c)
+                        old_codes = ep.response_codes[:]
+                        ep.response_codes = deduped
+                        ep._impl_retcodes_replacing_default = impl_extra  # type: ignore[attr-defined]
+                        logger.info(
+                            "[Case A] Resolved 'default' for %s %s: %s → %s",
+                            ep.method, ep.path, old_codes, deduped,
+                        )
+                else:
+                    # Case B — spec has explicit retcodes; align with impl
+                    spec_codes_set = set(ep.response_codes)
+                    impl_codes_set = set(impl_ep.response_codes)
+                    if spec_codes_set != impl_codes_set:
+                        old_codes = ep.response_codes[:]
+                        # Use impl retcodes as the authoritative list
+                        ep.response_codes = list(impl_ep.response_codes)
+                        # Mark so SpecWriterAgent replaces the responses dict entries
+                        ep._impl_retcodes_full_replace = impl_ep.response_codes  # type: ignore[attr-defined]
+                        logger.info(
+                            "[Case B] Aligned retcodes for %s %s: %s → %s",
+                            ep.method, ep.path, old_codes, ep.response_codes,
+                        )
 
             # Extend api_context with implementation notes
             api_context += (
@@ -229,7 +247,7 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         # Step 4: Enrich each endpoint via LLM
         # ----------------------------------------------------------------
-        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model, spec_version=spec_version)
+        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model)
         enrichments: List[Tuple[EndpointInfo, Dict[str, Any]]] = []
 
         for idx, endpoint in enumerate(spec_endpoints, start=1):
@@ -261,7 +279,7 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         # Step 5: Merge and write the enriched spec
         # ----------------------------------------------------------------
-        writer = SpecWriterAgent(raw_spec, self.spec_path, spec_version=spec_version)
+        writer = SpecWriterAgent(raw_spec, self.spec_path)
         enriched_spec = writer.merge_examples(enrichments)
         output_path = writer.write(enriched_spec, timestamp=self._run_timestamp)
 
@@ -270,9 +288,9 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         logger.info(
             "Validating enriched spec against OpenAPI %s schema...",
-            spec_version,
+            Config.OPENAPI_VERSION,
         )
-        validator = SpecValidatorAgent(openapi_version=spec_version)
+        validator = SpecValidatorAgent(openapi_version=Config.OPENAPI_VERSION)
         repaired_spec, repairs_applied, remaining_errors = validator.validate_and_repair(
             enriched_spec
         )

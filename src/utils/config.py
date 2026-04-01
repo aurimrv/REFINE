@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -46,28 +45,36 @@ class Config:
     SCHEMAS_DIR: Path = Path(os.getenv("SCHEMAS_DIR", str(_PROJECT_ROOT / "schemas")))
 
     @classmethod
-    def get_schema_path(cls, version: Optional[str] = None) -> Path:
+    def get_schema_path(cls, version: str = "") -> Path:
         """
-        Return the path to the JSON Schema file for the given (or configured)
-        OpenAPI version.  Raises FileNotFoundError if the schema file does not
-        exist.
-
-        Schema files are expected to follow the naming convention:
-            openapi-<version>-schema.json
-        e.g.:
-            schemas/openapi-3.0.0-schema.json
-            schemas/openapi-2.0-schema.json
+        Return the path to the JSON Schema file for the given version (or
+        OPENAPI_VERSION if not specified).
+        Raises FileNotFoundError if the schema file does not exist.
         """
-        target_version = version or cls.OPENAPI_VERSION
-        schema_filename = f"openapi-{target_version}-schema.json"
+        v = version or cls.OPENAPI_VERSION
+        schema_filename = f"openapi-{v}-schema.json"
         schema_path = cls.SCHEMAS_DIR / schema_filename
         if not schema_path.exists():
             raise FileNotFoundError(
                 f"OpenAPI schema file not found: {schema_path}\n"
-                f"  → Download the schema for OpenAPI {target_version} and place it at:\n"
+                f"  → Download the schema for OpenAPI {v} and place it at:\n"
                 f"    {schema_path}"
             )
         return schema_path
+
+    @staticmethod
+    def detect_spec_version(spec: dict) -> str:
+        """
+        Detect the OpenAPI/Swagger version declared in a spec dict.
+        Returns the version string (e.g. '3.0.0', '2.0') or '' if not found.
+        """
+        # OpenAPI 3.x uses the 'openapi' key
+        if "openapi" in spec:
+            return str(spec["openapi"])
+        # Swagger 2.0 uses the 'swagger' key
+        if "swagger" in spec:
+            return str(spec["swagger"])
+        return ""
 
     @classmethod
     def validate(cls) -> None:

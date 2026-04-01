@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.models.openapi_models import EndpointInfo
+from src.utils.config import Config
 from src.utils.logger import setup_logger
 
 logger = setup_logger("spec_writer_agent")
@@ -27,20 +28,22 @@ class SpecWriterAgent:
     """
     Agent that merges enrichment data into the original OpenAPI spec
     and persists the improved specification to disk.
+
+    Version-aware: detects whether the original spec is Swagger 2.0 or
+    OpenAPI 3.x and uses the appropriate structure for inserting examples.
     """
 
-    def __init__(self, original_spec: Dict[str, Any], spec_path: Path,
-                 spec_version: Optional[str] = None) -> None:
+    def __init__(self, original_spec: Dict[str, Any], spec_path: Path) -> None:
         self.original_spec = original_spec
         self.spec_path = spec_path
-        # Detect major version from the spec itself, falling back to the argument.
-        raw_version = original_spec.get("openapi") or original_spec.get("swagger", "3.0")
-        detected = str(spec_version or raw_version)
-        try:
-            self.spec_major_version: int = int(detected.split(".")[0])
-        except (ValueError, IndexError):
-            self.spec_major_version = 3
-        logger.info("SpecWriterAgent: operating in OpenAPI %s mode.", detected)
+        # Detect the spec version from the document itself
+        detected = Config.detect_spec_version(original_spec)
+        self._spec_major_version: int = int(detected.split(".")[0]) if detected else 3
+        logger.info(
+            "SpecWriterAgent: detected spec version '%s' (major=%d)",
+            detected or "unknown",
+            self._spec_major_version,
+        )
 
     # ------------------------------------------------------------------
     # Public API
@@ -119,11 +122,13 @@ class SpecWriterAgent:
                 "response_body_examples", {}
             )
 
-            # ---- Expand 'default' into real retcodes (when impl provides them) ----
+            # ---- Align responses dict with impl retcodes ----
+            responses: Dict[str, Any] = operation.setdefault("responses", {})
+
+            # Case A: spec used 'default'; expand it into real impl error codes
             impl_retcodes: List[str] = getattr(
                 endpoint, "_impl_retcodes_replacing_default", []
             )
-            responses: Dict[str, Any] = operation.setdefault("responses", {})
             if impl_retcodes and "default" in responses:
                 default_template = copy.deepcopy(responses["default"])
                 del responses["default"]
@@ -146,11 +151,58 @@ class SpecWriterAgent:
                             endpoint.path,
                         )
                 logger.info(
-                    "Replaced 'default' with explicit codes %s for %s %s",
+                    "[Case A] Replaced 'default' with explicit codes %s for %s %s",
                     impl_retcodes,
                     endpoint.method,
                     endpoint.path,
                 )
+
+            # Case B: spec had explicit retcodes different from impl; replace entirely
+            impl_full_replace: List[str] = getattr(
+                endpoint, "_impl_retcodes_full_replace", []
+            )
+            if impl_full_replace:
+                impl_codes_set = set(str(c) for c in impl_full_replace)
+                spec_codes_set = set(responses.keys())
+                # Remove retcodes that exist only in the spec (not in impl)
+                for spec_only_code in spec_codes_set - impl_codes_set:
+                    del responses[spec_only_code]
+                    logger.debug(
+                        "[Case B] Removed spec-only retcode '%s' from %s %s",
+                        spec_only_code, endpoint.method, endpoint.path,
+                    )
+                # Add retcodes that exist only in the impl (not yet in spec)
+                for impl_only_code in impl_codes_set - spec_codes_set:
+                    code_int = int(impl_only_code) if impl_only_code.isdigit() else 0
+                    if code_int in (200, 201, 204):
+                        desc = "Successful response"
+                    elif 400 <= code_int < 500:
+                        desc = f"Client error — {impl_only_code}"
+                    elif 500 <= code_int < 600:
+                        desc = f"Server error — {impl_only_code}"
+                    elif code_int == 405:
+                        desc = "Method not allowed"
+                    else:
+                        desc = f"Response {impl_only_code}"
+                    responses[impl_only_code] = {"description": desc}
+                    logger.debug(
+                        "[Case B] Added impl-only retcode '%s' to %s %s",
+                        impl_only_code, endpoint.method, endpoint.path,
+                    )
+                logger.info(
+                    "[Case B] Responses aligned with impl for %s %s: now %s",
+                    endpoint.method, endpoint.path, sorted(responses.keys()),
+                )
+
+            # ---- Force required:true for all in:path parameters ----
+            for param in operation.get("parameters", []):
+                if isinstance(param, dict) and param.get("in") == "path":
+                    if not param.get("required", False):
+                        param["required"] = True
+                        logger.debug(
+                            "Set required=true for path param '%s' in %s %s",
+                            param.get("name"), endpoint.method, endpoint.path,
+                        )
 
             # ---- Enrich parameters ----
             if param_examples and operation.get("parameters"):
@@ -160,30 +212,30 @@ class SpecWriterAgent:
                     for param in operation["parameters"]:
                         param_name = param.get("name")
                         if param_name and param_name in code_param_examples:
-                            if self.spec_major_version >= 3:
-                                # OAS 3.x: 'example' is a valid parameter field.
-                                param["example"] = code_param_examples[param_name]
-                            # Swagger 2.0: 'example' is NOT in the parameter
-                            # sub-schemas (additionalProperties: false) — skip
-                            # inline injection to keep the spec valid.
-                # Always store the full example map as a vendor extension so
-                # tooling can consume it regardless of spec version.
+                            param["example"] = code_param_examples[param_name]
                 operation["x-parameter-examples"] = param_examples
 
             # ---- Enrich request body ----
-            # OAS 3.x: requestBody is a first-class field.
-            # Swagger 2.0: there is no requestBody — body parameters were already
-            # represented as formData/body parameters and are handled via
-            # x-parameter-examples. Nothing to inject here for 2.0.
-            if req_body_examples and self.spec_major_version >= 3 and operation.get("requestBody"):
-                content = operation["requestBody"].get("content", {})
-                for _media_type, media_obj in content.items():
-                    if isinstance(media_obj, dict):
-                        media_obj["examples"] = {
-                            f"example_{code}": {"value": val}
-                            for code, val in req_body_examples.items()
-                            if val
-                        }
+            if req_body_examples:
+                if self._spec_major_version >= 3 and operation.get("requestBody"):
+                    # OpenAPI 3.x: examples go inside requestBody.content.<media>.examples
+                    content = operation["requestBody"].get("content", {})
+                    for _media_type, media_obj in content.items():
+                        if isinstance(media_obj, dict):
+                            media_obj["examples"] = {
+                                f"example_{code}": {"value": val}
+                                for code, val in req_body_examples.items()
+                                if val
+                            }
+                elif self._spec_major_version < 3:
+                    # Swagger 2.0: body parameters carry examples via x-examples extension
+                    for param in operation.get("parameters", []):
+                        if isinstance(param, dict) and param.get("in") == "body":
+                            param["x-examples"] = {
+                                f"example_{code}": {"value": val}
+                                for code, val in req_body_examples.items()
+                                if val
+                            }
 
             # ---- Enrich responses ----
             for code, response_obj in responses.items():
@@ -194,8 +246,8 @@ class SpecWriterAgent:
                     example_value = response_body_examples.get("default")
 
                 if example_value is not None:
-                    if self.spec_major_version >= 3:
-                        # OAS 3.x: examples go inside response.content.<media_type>.examples
+                    if self._spec_major_version >= 3:
+                        # OpenAPI 3.x: examples go inside responses.<code>.content.<media>.examples
                         content = response_obj.get("content")
                         if content:
                             for _media_type, media_obj in content.items():
@@ -212,12 +264,11 @@ class SpecWriterAgent:
                                 }
                             }
                     else:
-                        # Swagger 2.0: the response object has no 'content' field.
-                        # Store examples as a vendor extension (x-examples) so the
-                        # document stays valid against the Swagger 2.0 schema.
-                        response_obj.setdefault("x-examples", {})[
-                            f"example_{code}"
-                        ] = {"value": example_value}
+                        # Swagger 2.0: examples go directly in responses.<code>.examples
+                        # keyed by media type (e.g. "application/json")
+                        existing_examples = response_obj.get("examples", {})
+                        existing_examples["application/json"] = example_value
+                        response_obj["examples"] = existing_examples
 
             logger.debug(
                 "Merged examples for endpoint: %s %s", endpoint.method, endpoint.path
@@ -264,6 +315,9 @@ class SpecWriterAgent:
                 p = dict(param)
                 p.setdefault("in", "query")
                 p.setdefault("schema", {"type": "string"})
+                # OpenAPI rule: in:path parameters MUST have required:true
+                if p.get("in") == "path":
+                    p["required"] = True
                 parameters.append(p)
             else:
                 parameters.append({

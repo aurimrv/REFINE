@@ -98,6 +98,9 @@ If the endpoint has no request body, set "request_body_examples" to {{}}.
 """
 
 
+# Build the system prompt once at module load time using the configured version
+SYSTEM_PROMPT = _build_system_prompt(Config.OPENAPI_VERSION)
+
 
 class LLMAuthenticationError(Exception):
     """Raised when the LLM API returns a non-retriable authentication error."""
@@ -108,12 +111,8 @@ class LLMEnrichmentAgent:
     Agent that uses an LLM to generate realistic examples for OpenAPI endpoints.
     """
 
-    def __init__(self, model: Optional[str] = None, spec_version: Optional[str] = None) -> None:
+    def __init__(self, model: Optional[str] = None) -> None:
         self.model = model or Config.LLM_MODEL
-        # Use the spec's actual version for prompt generation so the LLM
-        # produces structurally compatible output (Swagger 2.0 vs OAS 3.x).
-        self.spec_version = spec_version or Config.OPENAPI_VERSION
-        self._system_prompt = _build_system_prompt(self.spec_version)
         self.client = OpenAI(
             api_key=Config.OPENROUTER_API_KEY,
             base_url=Config.OPENROUTER_API_BASE,
@@ -122,10 +121,9 @@ class LLMEnrichmentAgent:
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         logger.info(
-            "LLMEnrichmentAgent initialized with model: %s (base_url: %s, spec version: %s)",
+            "LLMEnrichmentAgent initialized with model: %s (base_url: %s)",
             self.model,
             Config.OPENROUTER_API_BASE,
-            self.spec_version,
         )
 
     def enrich_endpoint(self, endpoint: EndpointInfo, api_context: str) -> Dict[str, Any]:
@@ -191,7 +189,7 @@ class LLMEnrichmentAgent:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": self._system_prompt},
+                    {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_message},
                 ],
                 temperature=Config.LLM_TEMPERATURE,
