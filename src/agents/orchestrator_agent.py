@@ -200,15 +200,15 @@ class OrchestratorAgent:
                     continue
 
                 if "default" in ep.response_codes:
-                    # Case A — spec uses 'default'
-                    impl_extra = [
-                        c for c in impl_ep.response_codes
-                        if c not in ("200", "201", "204")
-                    ]
-                    if impl_extra:
+                    # Case A — spec uses 'default': always replace it with the
+                    # full list of impl codes (success AND error), so that 201/204
+                    # are not silently swallowed and 'default' never leaks through.
+                    if impl_ep.response_codes:
+                        # All codes that are NOT 'default' from the spec stay;
+                        # 'default' is replaced by every code the impl declares.
                         new_codes = [
                             c for c in ep.response_codes if c != "default"
-                        ] + impl_extra
+                        ] + list(impl_ep.response_codes)
                         seen_codes: set = set()
                         deduped: List[str] = []
                         for c in new_codes:
@@ -217,7 +217,10 @@ class OrchestratorAgent:
                                 seen_codes.add(c)
                         old_codes = ep.response_codes[:]
                         ep.response_codes = deduped
-                        ep._impl_retcodes_replacing_default = impl_extra  # type: ignore[attr-defined]
+                        # Signal SpecWriterAgent to expand 'default' into explicit
+                        # entries.  Pass ALL impl codes (including 2xx) so the
+                        # writer can create proper response objects for each one.
+                        ep._impl_retcodes_replacing_default = list(impl_ep.response_codes)  # type: ignore[attr-defined]
                         logger.info(
                             "[Case A] Resolved 'default' for %s %s: %s → %s",
                             ep.method, ep.path, old_codes, deduped,
@@ -247,7 +250,10 @@ class OrchestratorAgent:
         # ----------------------------------------------------------------
         # Step 4: Enrich each endpoint via LLM
         # ----------------------------------------------------------------
-        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model)
+        # Use the version declared in the spec itself (e.g. "2.0" for Swagger),
+        # not the global Config default, so the LLM prompt matches the actual format.
+        detected_spec_version = Config.detect_spec_version(raw_spec) or Config.OPENAPI_VERSION
+        enrichment_agent = LLMEnrichmentAgent(model=self.llm_model, openapi_version=detected_spec_version)
         enrichments: List[Tuple[EndpointInfo, Dict[str, Any]]] = []
 
         for idx, endpoint in enumerate(spec_endpoints, start=1):

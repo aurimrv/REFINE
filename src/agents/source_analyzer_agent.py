@@ -65,13 +65,21 @@ BACKEND_EXTENSIONS = {
 # but NOT OpenAPI/Swagger spec files.
 CONFIG_EXTENSIONS = {".xml"}
 
-# Directories that are never relevant for API endpoint analysis
+# Directories that are never relevant for API endpoint analysis.
+# These names must match an ENTIRE path segment (not a substring) to avoid
+# discarding legitimate implementation files whose paths happen to contain
+# words like "test" (e.g. Maven's src/test/ layout).
 EXCLUDED_DIRS = {
     ".git", ".svn", "node_modules", "__pycache__", ".idea", ".vscode",
     "target", "build", "dist", "out", ".gradle", ".mvn",
-    "test", "tests", "spec", "specs",  # test code excluded — we want impl only
-    "static", "webapp", "public", "assets", "resources/static",
+    "static", "webapp", "public", "assets",
 }
+
+# Path-segment suffixes that mark a directory tree as test-only.
+# A file is excluded when ANY of its ancestor directory names matches one of
+# these values exactly (case-insensitive).  Using a separate set keeps the
+# logic explicit and easy to extend.
+TEST_DIRS = {"test", "tests", "spec", "specs", "it", "integrationtest", "integrationtests"}
 
 # File name patterns that indicate static/generated/documentation files to skip
 EXCLUDED_FILENAME_PATTERNS = {
@@ -217,9 +225,34 @@ class SourceAnalyzerAgent:
             if not path.is_file():
                 continue
 
-            # Skip excluded directories anywhere in the path
-            path_parts_lower = {p.lower() for p in path.parts}
-            if any(excl in path_parts_lower for excl in EXCLUDED_DIRS):
+            # Build the set of individual directory-name segments for this file,
+            # relative to src_home, so we match on whole names only (not substrings).
+            rel_parts = path.relative_to(self.src_home).parts  # e.g. ('src','main','java','...')
+            rel_parts_lower = {p.lower() for p in rel_parts[:-1]}  # exclude the filename itself
+
+            # Skip build/tooling/frontend directories (exact segment match)
+            if any(excl in rel_parts_lower for excl in EXCLUDED_DIRS):
+                logger.debug("Skipping (excluded dir): %s", path.relative_to(self.src_home))
+                continue
+
+            # Skip dedicated test trees only when the test directory sits directly
+            # under src_home OR directly under a standard source layout root
+            # (e.g. Maven's src/test/, Gradle's test/).
+            # Strategy: a segment is treated as a test root only when it appears
+            # as the first or second element of the relative path, which covers:
+            #   test/...                  (Gradle single-project)
+            #   src/test/...              (Maven standard)
+            #   src/integrationTest/...   (Spring Boot integration tests)
+            # Files deeper in the tree (e.g. src/main/java/myapp/TestHelper.java)
+            # are NOT excluded — the word "test" appears in the filename, not in a
+            # leading directory segment.
+            leading_parts_lower = [p.lower() for p in rel_parts[:-1]]
+            is_test_tree = any(
+                seg in TEST_DIRS
+                for seg in leading_parts_lower[:3]   # check first 3 directory levels
+            )
+            if is_test_tree:
+                logger.debug("Skipping (test tree): %s", path.relative_to(self.src_home))
                 continue
 
             # Also skip paths that contain "webapp" or "static" anywhere
@@ -309,7 +342,10 @@ class SourceAnalyzerAgent:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_message},
                 ],
-                temperature=Config.LLM_TEMPERATURE,
+                # Source-code analysis is deterministic fact-extraction: always
+                # use temperature=0 regardless of the global Config setting so
+                # that repeated runs on the same codebase produce identical output.
+                temperature=0.0,
                 seed=Config.LLM_SEED,
             )
         except (AuthenticationError, PermissionDeniedError) as exc:
@@ -372,10 +408,17 @@ class SourceAnalyzerAgent:
 
     @staticmethod
     def _deduplicate(endpoints: List[ImplementedEndpoint]) -> List[ImplementedEndpoint]:
-        """Remove duplicate endpoints (same method + path), merging response codes."""
+        """Remove duplicate endpoints (same method + path), merging response codes.
+
+        Normalises the path to lowercase with trailing slash stripped before
+        building the deduplication key, so two entries that differ only in
+        capitalisation or a trailing slash are correctly collapsed into one.
+        The first occurrence wins for all non-code fields; response codes from
+        all duplicates are merged.
+        """
         seen: dict = {}
         for ep in endpoints:
-            key = (ep.method.upper(), ep.path)
+            key = (ep.method.upper(), ep.path.rstrip("/").lower())
             if key not in seen:
                 seen[key] = ep
             else:
@@ -384,6 +427,7 @@ class SourceAnalyzerAgent:
                 for code in ep.response_codes:
                     if code not in existing_codes:
                         seen[key].response_codes.append(code)
+                        existing_codes.add(code)
         return list(seen.values())
 
     @staticmethod

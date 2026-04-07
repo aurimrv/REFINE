@@ -92,6 +92,7 @@ OpenAPI {openapi_version} compatibility rules (STRICTLY FOLLOW):
 - Response code keys MUST be strings (e.g. "200", "404"), never integers.
 - Do NOT add fields that are not part of the OpenAPI {openapi_version} specification.
 - Use realistic data (real country names, valid ISO codes, real currencies, etc.) — NOT placeholder values like "string" or "example".
+- CRITICAL: Generate examples ONLY for the response codes explicitly listed in the endpoint definition provided in the user message. Do NOT add examples for any other response codes (e.g. do NOT add 401, 403, 404 if they are not listed). The response code keys in "parameters_examples", "request_body_examples", and "response_body_examples" MUST be an exact subset of the codes listed under "Response codes to cover".
 - Return ONLY a valid JSON object. Do NOT include markdown code fences or any extra text.
 - The JSON must follow this EXACT structure:
 
@@ -134,7 +135,8 @@ IMPORTANT NOTES on the structure:
 """
 
 
-# Build the system prompt once at module load time using the configured version
+# Module-level prompt uses the configured default version.
+# LLMEnrichmentAgent rebuilds it per-instance when a different spec version is detected.
 SYSTEM_PROMPT = _build_system_prompt(Config.OPENAPI_VERSION)
 
 
@@ -148,7 +150,7 @@ class LLMEnrichmentAgent:
     endpoint/retcode pair for OpenAPI endpoints.
     """
 
-    def __init__(self, model: Optional[str] = None) -> None:
+    def __init__(self, model: Optional[str] = None, openapi_version: Optional[str] = None) -> None:
         self.model = model or Config.LLM_MODEL
         self.client = OpenAI(
             api_key=Config.OPENROUTER_API_KEY,
@@ -157,10 +159,15 @@ class LLMEnrichmentAgent:
         self.rate_limiter = RateLimiter(Config.RATE_LIMIT_REQUESTS_PER_MINUTE)
         self.total_input_tokens = 0
         self.total_output_tokens = 0
+        # Build the system prompt using the spec's actual version (may differ from
+        # the global Config default, e.g. Swagger 2.0 specs on a 3.0 installation).
+        effective_version = openapi_version or Config.OPENAPI_VERSION
+        self._system_prompt = _build_system_prompt(effective_version)
         logger.info(
-            "LLMEnrichmentAgent initialized with model: %s (base_url: %s)",
+            "LLMEnrichmentAgent initialized with model: %s (base_url: %s, openapi_version: %s)",
             self.model,
             Config.OPENROUTER_API_BASE,
+            effective_version,
         )
 
     def enrich_endpoint(self, endpoint: EndpointInfo, api_context: str) -> Dict[str, Any]:
@@ -245,7 +252,7 @@ class LLMEnrichmentAgent:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": self._system_prompt},
                     {"role": "user", "content": user_message},
                 ],
                 temperature=Config.LLM_TEMPERATURE,

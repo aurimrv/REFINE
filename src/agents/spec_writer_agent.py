@@ -135,7 +135,9 @@ class SpecWriterAgent:
                 for real_code in impl_retcodes:
                     if real_code not in responses:
                         code_int = int(real_code) if real_code.isdigit() else 0
-                        if 400 <= code_int < 500:
+                        if code_int in (200, 201, 204):
+                            desc = "Successful response"
+                        elif 400 <= code_int < 500:
                             desc = f"Client error — {real_code}"
                         elif 500 <= code_int < 600:
                             desc = f"Server error — {real_code}"
@@ -194,6 +196,12 @@ class SpecWriterAgent:
                     endpoint.method, endpoint.path, sorted(responses.keys()),
                 )
 
+            # ---- Compute the set of valid response codes after all alignment ----
+            # This is the authoritative set used to filter LLM-generated examples,
+            # preventing phantom codes (e.g. 401/403/404 invented by the LLM) from
+            # being written into x-parameter-examples or response body examples.
+            valid_response_codes: set = set(responses.keys())
+
             # ---- Force required:true for all in:path parameters ----
             for param in operation.get("parameters", []):
                 if isinstance(param, dict) and param.get("in") == "path":
@@ -206,35 +214,64 @@ class SpecWriterAgent:
 
             # ---- Enrich parameters ----
             if param_examples and operation.get("parameters"):
-                # Set the scalar 'example' field on each parameter using the
-                # first 'typical' (or first available) example for the first
-                # success code — this keeps Swagger UI / editor previews working.
-                first_success_code = next(
-                    (c for c in param_examples if str(c).startswith("2")),
-                    next(iter(param_examples), None),
-                )
-                if first_success_code:
-                    examples_list = param_examples[first_success_code]
-                    # Pick the example named 'typical', or fall back to the first one
-                    if isinstance(examples_list, list) and examples_list:
-                        typical = next(
-                            (e for e in examples_list if e.get("_name") == "typical"),
-                            examples_list[0],
-                        )
-                        for param in operation["parameters"]:
-                            param_name = param.get("name")
-                            if param_name and param_name in typical:
-                                param["example"] = typical[param_name]
-                    elif isinstance(examples_list, dict):
-                        # Backward-compat: single dict (no _name)
-                        for param in operation["parameters"]:
-                            param_name = param.get("name")
-                            if param_name and param_name in examples_list:
-                                param["example"] = examples_list[param_name]
-                # Store the full multi-example structure as x-parameter-examples
-                operation["x-parameter-examples"] = param_examples
+                # --- FIX: discard any response-code key that the LLM invented
+                # but that does not actually exist in this operation's responses.
+                # This prevents phantom 401/403/404 examples from leaking into
+                # the spec when the implementation never emits those codes.
+                param_examples = {
+                    code: val
+                    for code, val in param_examples.items()
+                    if str(code) in valid_response_codes
+                }
+                phantom_keys = set(param_examples) - valid_response_codes  # already empty after filter, kept for logging
+                if phantom_keys:
+                    logger.warning(
+                        "Discarded phantom x-parameter-examples keys %s for %s %s "
+                        "(not present in operation responses).",
+                        sorted(phantom_keys), endpoint.method, endpoint.path,
+                    )
+
+                if param_examples:
+                    # Set the scalar 'example' field on each parameter using the
+                    # first 'typical' (or first available) example for the first
+                    # success code — this keeps Swagger UI / editor previews working.
+                    first_success_code = next(
+                        (c for c in param_examples if str(c).startswith("2")),
+                        next(iter(param_examples), None),
+                    )
+                    if first_success_code:
+                        examples_list = param_examples[first_success_code]
+                        # Pick the example named 'typical', or fall back to the first one
+                        if isinstance(examples_list, list) and examples_list:
+                            typical = next(
+                                (e for e in examples_list if e.get("_name") == "typical"),
+                                examples_list[0],
+                            )
+                            for param in operation["parameters"]:
+                                param_name = param.get("name")
+                                if param_name and param_name in typical:
+                                    param["example"] = typical[param_name]
+                        elif isinstance(examples_list, dict):
+                            # Backward-compat: single dict (no _name)
+                            for param in operation["parameters"]:
+                                param_name = param.get("name")
+                                if param_name and param_name in examples_list:
+                                    param["example"] = examples_list[param_name]
+                    # Store the filtered multi-example structure as x-parameter-examples
+                    operation["x-parameter-examples"] = param_examples
+                    logger.debug(
+                        "x-parameter-examples written for %s %s — codes: %s",
+                        endpoint.method, endpoint.path, sorted(param_examples.keys()),
+                    )
 
             # ---- Enrich request body ----
+            if req_body_examples:
+                # Filter to valid response codes only
+                req_body_examples = {
+                    code: val
+                    for code, val in req_body_examples.items()
+                    if str(code) in valid_response_codes
+                }
             if req_body_examples:
                 if self._spec_major_version >= 3 and operation.get("requestBody"):
                     # OpenAPI 3.x: examples go inside requestBody.content.<media>.examples
