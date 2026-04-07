@@ -44,7 +44,45 @@ class SpecParserAgent:
                 "Enrichment is performed via static analysis only.",
                 server_urls,
             )
+
+        # Derive the base path prefix used by the spec so callers can strip it
+        # from impl-extracted paths before comparison.
+        #
+        # Swagger 2.0: explicit 'basePath' field (e.g. "/rest").
+        # OpenAPI 3.x: path component of the first server URL
+        #              (e.g. "http://localhost:8080/rest" → "/rest").
+        #
+        # The prefix is normalised to lowercase with no trailing slash so it
+        # can be compared directly against lowercased impl paths.
+        self.spec_base_path: str = self._extract_base_path(self.raw_spec)
+        if self.spec_base_path:
+            logger.info(
+                "Spec base path detected: '%s' — will be stripped from impl paths "
+                "during comparison to align path formats.",
+                self.spec_base_path,
+            )
         return self.raw_spec
+
+    @staticmethod
+    def _extract_base_path(spec: Dict[str, Any]) -> str:
+        """
+        Return the URL path prefix declared in the spec, normalised to
+        lowercase with no trailing slash.  Returns '' if no prefix is found
+        or if the prefix is just '/'.
+        """
+        from urllib.parse import urlparse
+
+        # Swagger 2.0
+        base = spec.get("basePath", "")
+        if not base:
+            # OpenAPI 3.x — take the path component of the first server URL
+            servers = spec.get("servers", [])
+            if servers:
+                url = servers[0].get("url", "")
+                base = urlparse(url).path if url else ""
+
+        base = base.rstrip("/").lower()
+        return base if base and base != "/" else ""
 
     def parse_endpoints(self) -> List[EndpointInfo]:
         """

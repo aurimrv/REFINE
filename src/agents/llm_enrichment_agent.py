@@ -305,35 +305,336 @@ class LLMEnrichmentAgent:
     ) -> Dict[str, Any]:
         """
         Parse the LLM JSON response, stripping any accidental markdown fences.
+
+        When the initial parse fails (e.g. truncated response), three recovery
+        strategies are attempted in order before giving up:
+
+          S1 — Fence-only artefact: the text starts with ``` but the closing
+               fence is missing.  Strip the opening line and retry.
+
+          S2 — Trailing garbage: extra text or a partial second JSON object
+               appears after the first complete one.  Find the position of the
+               last balanced closing brace/bracket and truncate there.
+
+          S3 — Interior truncation: the JSON was cut mid-string.  Attempt
+               repair with the ``json_repair`` library when available, or skip.
+
+        All strategies are generic — they work for any JSON structure returned
+        by any LLM, not just the specific format used here.
+
         Normalises the parameters_examples and request_body_examples fields to
         always use the list-of-named-examples structure, even if the LLM returns
         the old single-dict format (for backward compatibility).
         Returns an empty structure on failure.
         """
-        # Sanitize: remove markdown code fences if present
-        cleaned = response_text
+        _EMPTY = {
+            "parameters_examples": {},
+            "request_body_examples": {},
+            "response_body_examples": {},
+        }
+
+        # ---- Step 1: strip markdown fences --------------------------------
+        cleaned = response_text.strip()
         if cleaned.startswith("```"):
             lines = cleaned.splitlines()
-            start = 1 if lines[0].startswith("```") else 0
+            # Drop the opening fence line (```json or ```)
+            start = 1
+            # Drop the closing fence line if present
             end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
-            cleaned = "\n".join(lines[start:end])
+            cleaned = "\n".join(lines[start:end]).strip()
 
+        # ---- Step 2: attempt direct parse ----------------------------------
+        data = self._try_json_loads(cleaned)
+        if data is not None:
+            return self._normalise_examples(data)
+
+        logger.warning(
+            "Initial JSON parse failed for %s %s — attempting recovery.",
+            endpoint.method, endpoint.path,
+        )
+
+        # ---- Recovery S1: missing closing fence ----------------------------
+        # Some models emit the opening ``` but forget to close it.
+        # If cleaning produced something that still starts with ```, strip again.
+        if cleaned.startswith("```"):
+            inner = "\n".join(cleaned.splitlines()[1:]).strip()
+            data = self._try_json_loads(inner)
+            if data is not None:
+                logger.info("S1 recovery succeeded for %s %s.", endpoint.method, endpoint.path)
+                return self._normalise_examples(data)
+
+        # ---- Recovery S2: trailing garbage / extra data -------------------
+        # Find the position of the last character that closes the top-level
+        # JSON object so we can truncate everything after it.
+        data = self._try_truncate_at_last_balanced(cleaned)
+        if data is not None:
+            logger.info("S2 recovery succeeded for %s %s.", endpoint.method, endpoint.path)
+            return self._normalise_examples(data)
+
+        # ---- Recovery S3: interior truncation via json_repair --------------
         try:
-            data = json.loads(cleaned)
-        except json.JSONDecodeError as exc:
-            logger.error(
-                "Failed to parse LLM JSON response for %s %s: %s",
-                endpoint.method,
-                endpoint.path,
-                exc,
-            )
-            logger.debug("Raw LLM response: %s", response_text)
-            return {
-                "parameters_examples": {},
-                "request_body_examples": {},
-                "response_body_examples": {},
-            }
+            import json_repair  # optional dependency
+            repaired = json_repair.repair_json(cleaned)
+            data = self._try_json_loads(repaired)
+            if data is not None and isinstance(data, dict):
+                logger.info("S3 recovery succeeded for %s %s.", endpoint.method, endpoint.path)
+                return self._normalise_examples(data)
+        except ImportError:
+            pass  # json_repair not installed — skip silently
+        except Exception:
+            pass
 
+        # ---- Recovery S4: salvage complete blocks from truncated response --
+        # When the JSON was cut mid-stream (e.g. token limit reached), the
+        # top-level keys "parameters_examples", "request_body_examples" and
+        # "response_body_examples" may each contain response-code sub-objects.
+        # Any sub-object whose closing brace was emitted before the cut is
+        # structurally complete and safe to use.
+        #
+        # Strategy: for each top-level key found in the truncated text, extract
+        # only the response-code entries whose value is a fully balanced and
+        # parseable JSON array or object.  Discard the incomplete tail.
+        # This is purely structural — no assumptions about value semantics.
+        data = self._try_salvage_partial_blocks(cleaned)
+        if data is not None:
+            logger.info(
+                "S4 partial-block salvage succeeded for %s %s — "
+                "some response-code entries may be missing due to truncation.",
+                endpoint.method, endpoint.path,
+            )
+            return self._normalise_examples(data)
+
+        # ---- All strategies exhausted -------------------------------------
+        logger.warning(
+            "All JSON recovery strategies failed for %s %s — "
+            "returning empty examples. The LLM response was likely truncated "
+            "beyond recovery. Consider reducing the number of response codes "
+            "or examples requested for this endpoint. "
+            "Raw response (first 300 chars): %.300s",
+            endpoint.method,
+            endpoint.path,
+            response_text,
+        )
+        return _EMPTY
+
+    # ------------------------------------------------------------------
+    # JSON parsing helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _try_json_loads(text: str):
+        """Attempt json.loads; return parsed dict/list on success, None on failure."""
+        try:
+            result = json.loads(text)
+            return result if isinstance(result, dict) else None
+        except (json.JSONDecodeError, ValueError):
+            return None
+
+    @staticmethod
+    def _try_truncate_at_last_balanced(text: str):
+        """
+        Walk the string character-by-character tracking brace/bracket depth.
+        Each time depth returns to zero after a top-level opening brace, try
+        parsing the substring up to and including that position.  Return the
+        first successful parse.
+
+        This handles two common LLM failure modes:
+          • "Extra data" — a second JSON object appended after the first.
+          • Trailing non-JSON commentary after the closing brace.
+
+        Trying candidates in forward order (shortest first) means we recover
+        the first complete, valid object — which is always the intended output.
+
+        Returns the parsed dict on success, None if no valid object is found.
+        """
+        depth = 0
+        in_string = False
+        escape_next = False
+        opener = None
+
+        for i, ch in enumerate(text):
+            if escape_next:
+                escape_next = False
+                continue
+            if ch == "\\" and in_string:
+                escape_next = True
+                continue
+            if ch == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+
+            if ch in "{[":
+                if depth == 0:
+                    opener = ch
+                depth += 1
+            elif ch in "}]":
+                depth -= 1
+                if depth == 0 and opener == "{":
+                    # Try to parse from the start up to this closing brace.
+                    candidate = text[: i + 1]
+                    try:
+                        result = json.loads(candidate)
+                        if isinstance(result, dict):
+                            return result
+                    except (json.JSONDecodeError, ValueError):
+                        # This candidate was itself malformed (e.g. interior
+                        # error before a later valid close).  Keep scanning.
+                        pass
+
+        return None
+
+    @staticmethod
+    def _try_salvage_partial_blocks(text: str):
+        """
+        Salvage strategy for responses truncated mid-stream (S4).
+
+        When a LLM response is cut before the closing braces are emitted, the
+        text contains complete sub-objects interleaved with an incomplete tail.
+        This method extracts only the structurally complete entries.
+
+        Algorithm:
+        1. Locate each of the three expected top-level keys in the raw text.
+        2. For each key, scan forward from its value-opening character and
+           collect only the response-code sub-keys whose value (array or object)
+           is fully balanced (all braces/brackets closed).
+        3. Build a synthetic result dict from those salvaged entries.
+        4. Return None if nothing usable was found.
+
+        This is intentionally conservative: a sub-entry is included only when
+        json.loads confirms it is valid — no guessing or patching.
+        """
+        TOP_LEVEL_KEYS = [
+            "parameters_examples",
+            "request_body_examples",
+            "response_body_examples",
+        ]
+
+        def _extract_balanced_value(src: str, start: int):
+            """
+            Starting at src[start] (which must be '{' or '['), walk forward
+            tracking depth.  Return (parsed_value, end_index+1) on success,
+            or (None, start) if no balanced close is found.
+            """
+            if start >= len(src) or src[start] not in "{[":
+                return None, start
+            depth = 0
+            in_str = False
+            esc = False
+            for i in range(start, len(src)):
+                ch = src[i]
+                if esc:
+                    esc = False
+                    continue
+                if ch == "\\" and in_str:
+                    esc = True
+                    continue
+                if ch == '"':
+                    in_str = not in_str
+                    continue
+                if in_str:
+                    continue
+                if ch in "{[":
+                    depth += 1
+                elif ch in "}]":
+                    depth -= 1
+                    if depth == 0:
+                        candidate = src[start: i + 1]
+                        try:
+                            return json.loads(candidate), i + 1
+                        except (json.JSONDecodeError, ValueError):
+                            return None, start
+            return None, start
+
+        def _find_key_value_start(src: str, key: str):
+            """
+            Return the index of the first '{' or '[' that follows the quoted
+            key in src, or -1 if not found.
+            """
+            needle = f'"{key}"'
+            pos = src.find(needle)
+            if pos == -1:
+                return -1
+            # Skip past the key, colon, and optional whitespace
+            pos += len(needle)
+            while pos < len(src) and src[pos] in " \t\r\n":
+                pos += 1
+            if pos < len(src) and src[pos] == ":":
+                pos += 1
+            while pos < len(src) and src[pos] in " \t\r\n":
+                pos += 1
+            if pos < len(src) and src[pos] in "{[":
+                return pos
+            return -1
+
+        result = {}
+        found_anything = False
+
+        for top_key in TOP_LEVEL_KEYS:
+            block_start = _find_key_value_start(text, top_key)
+            if block_start == -1 or text[block_start] != "{":
+                result[top_key] = {}
+                continue
+
+            # Walk the top-level object for this key, collecting complete entries
+            salvaged = {}
+            pos = block_start + 1  # skip opening '{'
+            src_len = len(text)
+
+            while pos < src_len:
+                # Skip whitespace and commas
+                while pos < src_len and text[pos] in " \t\r\n,":
+                    pos += 1
+                if pos >= src_len or text[pos] == "}":
+                    break
+                # Expect a quoted response-code key
+                if text[pos] != '"':
+                    break
+                # Find closing quote of the key
+                key_end = text.find('"', pos + 1)
+                if key_end == -1:
+                    break
+                code_key = text[pos + 1: key_end]
+                pos = key_end + 1
+                # Skip colon and whitespace
+                while pos < src_len and text[pos] in " \t\r\n":
+                    pos += 1
+                if pos >= src_len or text[pos] != ":":
+                    break
+                pos += 1
+                while pos < src_len and text[pos] in " \t\r\n":
+                    pos += 1
+                if pos >= src_len or text[pos] not in "{[":
+                    break
+                # Try to extract a balanced value for this response-code entry
+                value, next_pos = _extract_balanced_value(text, pos)
+                if value is not None:
+                    salvaged[code_key] = value
+                    found_anything = True
+                    pos = next_pos
+                else:
+                    # Value is incomplete (truncation point) — stop scanning
+                    break
+
+            result[top_key] = salvaged
+
+        if not found_anything:
+            return None
+
+        # Ensure all three keys are present even if empty
+        for k in TOP_LEVEL_KEYS:
+            result.setdefault(k, {})
+
+        return result
+
+    @staticmethod
+    def _normalise_examples(data: dict) -> dict:
+        """
+        Normalise parameters_examples and request_body_examples so that each
+        response-code key always maps to a LIST of named-example dicts.
+        Accepts both the current list format and the legacy single-dict format.
+        """
         # Normalise parameters_examples: ensure each retcode maps to a list
         param_ex = data.get("parameters_examples", {})
         if isinstance(param_ex, dict):
@@ -361,11 +662,7 @@ class LLMEnrichmentAgent:
                     req_ex[code] = []
         data["request_body_examples"] = req_ex
 
-        logger.debug(
-            "Successfully parsed LLM response for %s %s.",
-            endpoint.method,
-            endpoint.path,
-        )
+        logger.debug("Examples normalised successfully.")
         return data
 
     def get_token_usage(self) -> Dict[str, int]:

@@ -79,6 +79,10 @@ class OrchestratorAgent:
         parser = SpecParserAgent(self.spec_path)
         raw_spec = parser.load()
         spec_endpoints: List[EndpointInfo] = parser.parse_endpoints()
+        # Base-path prefix declared in the spec (e.g. "/rest" from basePath or
+        # from servers[0].url).  Used later to strip the prefix from impl paths
+        # before comparing them against spec paths.
+        spec_base_path: str = getattr(parser, "spec_base_path", "")
 
         if not spec_endpoints:
             logger.warning("No endpoints found in the specification. Aborting.")
@@ -124,6 +128,7 @@ class OrchestratorAgent:
                 impl_endpoints=impl_endpoints,
                 spec_file=self.spec_path,
                 src_home=self.src_home,
+                spec_base_path=spec_base_path,
             )
             discrepancy_report = reporter.compare()
 
@@ -145,27 +150,46 @@ class OrchestratorAgent:
                 discrepancy_report.param_mismatches,
             )
 
-            # Build a lookup: (method, path) → ImplementedEndpoint for retcode resolution
+            # Build a lookup: (method, normalised-path) → ImplementedEndpoint
+            # Impl paths are stripped of the spec base-path prefix so that
+            # "/rest/v1/all" (impl) resolves to "/v1/all" (spec) when the spec
+            # declares basePath="/rest".
+            def _strip(path: str) -> str:
+                """Lowercase, strip trailing slash, remove spec base-path prefix."""
+                p = path.rstrip("/").lower()
+                if spec_base_path and p.startswith(spec_base_path):
+                    stripped = p[len(spec_base_path):]
+                    return stripped if stripped.startswith("/") else "/" + stripped
+                return p
+
             impl_lookup: Dict[tuple, ImplementedEndpoint] = {
-                (ep.method.upper(), ep.path.rstrip("/").lower()): ep
+                (ep.method.upper(), _strip(ep.path)): ep
                 for ep in impl_endpoints
             }
 
-            # Merge impl-only endpoints into the endpoint list for enrichment
-            spec_endpoint_keys = set(impl_lookup.keys())
+            # Merge impl-only endpoints into the endpoint list for enrichment.
+            # The path stored in the EndpointInfo uses the STRIPPED form (i.e.
+            # without the spec base-path prefix) so that:
+            #   • SpecWriterAgent inserts it under the same path key as the spec
+            #     uses — "/v1/all" not "/rest/v1/all".
+            #   • The enrichment prompt receives a path consistent with the spec.
+            # This is generic: when spec_base_path is empty the stripped path
+            # equals the original, so projects without a base-path are unaffected.
             for impl_ep in impl_endpoints:
-                key = (impl_ep.method.upper(), impl_ep.path.rstrip("/").lower())
+                stripped_path = _strip(impl_ep.path)
+                key = (impl_ep.method.upper(), stripped_path)
                 spec_keys = {
                     (ep.method.upper(), ep.path.rstrip("/").lower())
                     for ep in spec_endpoints
                 }
                 if key not in spec_keys:
-                    # Convert ImplementedEndpoint → EndpointInfo for enrichment
+                    # Convert ImplementedEndpoint → EndpointInfo for enrichment.
+                    # Use stripped_path so the spec path is clean and prefix-free.
                     extra_ep = EndpointInfo(
                         method=impl_ep.method,
-                        path=impl_ep.path,
+                        path=stripped_path,
                         operation_id=None,
-                        summary=impl_ep.description or f"{impl_ep.method} {impl_ep.path}",
+                        summary=impl_ep.description or f"{impl_ep.method} {stripped_path}",
                         description=impl_ep.description,
                         parameters=impl_ep.parameters,
                         request_body=None,
@@ -176,9 +200,10 @@ class OrchestratorAgent:
                     extra_ep._impl_only = True  # type: ignore[attr-defined]
                     spec_endpoints.append(extra_ep)
                     logger.info(
-                        "Added impl-only endpoint to enrichment queue: %s %s",
+                        "Added impl-only endpoint to enrichment queue: %s %s%s",
                         impl_ep.method,
-                        impl_ep.path,
+                        stripped_path,
+                        f" (original: {impl_ep.path})" if stripped_path != impl_ep.path.rstrip("/").lower() else "",
                     )
 
             # Align retcodes: replace spec retcodes with impl retcodes for every
@@ -321,7 +346,7 @@ class OrchestratorAgent:
         else:
             logger.info(
                 "Spec is fully compliant with OpenAPI %s.",
-                Config.OPENAPI_VERSION,
+                detected_spec_version,
             )
 
         # ----------------------------------------------------------------
@@ -340,7 +365,7 @@ class OrchestratorAgent:
         logger.info("Enriched spec  : %s", output_path)
         if discrepancy_report_path:
             logger.info("Discrepancy rpt: %s", discrepancy_report_path)
-        logger.info("OpenAPI version: %s", Config.OPENAPI_VERSION)
+        logger.info("OpenAPI version: %s", detected_spec_version)
         logger.info(
             "Validation     : %s",
             "PASSED" if not remaining_errors else f"{len(remaining_errors)} error(s) remain",

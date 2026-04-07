@@ -95,16 +95,23 @@ class DiscrepancyReporterAgent:
         impl_endpoints: List[ImplementedEndpoint],
         spec_file: Path,
         src_home: Path,
+        spec_base_path: str = "",
     ) -> None:
         self.spec_endpoints = spec_endpoints
         self.impl_endpoints = impl_endpoints
         self.spec_file = spec_file
         self.src_home = src_home
+        # Normalised base-path prefix (e.g. "/rest") that the LLM may have
+        # prepended to impl paths.  Stripped before comparison so that a spec
+        # path "/v1/all" matches an impl path "/rest/v1/all".
+        self.spec_base_path: str = spec_base_path.rstrip("/").lower() if spec_base_path else ""
         logger.info(
             "DiscrepancyReporterAgent initialized. "
-            "Spec endpoints: %d, Implemented endpoints: %d.",
+            "Spec endpoints: %d, Implemented endpoints: %d. "
+            "Spec base path: '%s'.",
             len(spec_endpoints),
             len(impl_endpoints),
+            self.spec_base_path or "(none)",
         )
 
     # ------------------------------------------------------------------
@@ -121,11 +128,16 @@ class DiscrepancyReporterAgent:
             generated_at=datetime.now().isoformat(timespec="seconds"),
         )
 
-        # Build lookup maps
+        # Build lookup maps.
+        # Impl paths are stripped of the spec base-path prefix before indexing
+        # so that e.g. "/rest/v1/all" (impl) matches "/v1/all" (spec) when the
+        # spec declares basePath="/rest" or servers[0].url ends with "/rest".
         spec_map = {(ep.method.upper(), self._normalize_path(ep.path)): ep
                     for ep in self.spec_endpoints}
-        impl_map = {(ep.method.upper(), self._normalize_path(ep.path)): ep
-                    for ep in self.impl_endpoints}
+        impl_map = {
+            (ep.method.upper(), self._strip_base_path(ep.path)): ep
+            for ep in self.impl_endpoints
+        }
 
         all_keys = set(spec_map.keys()) | set(impl_map.keys())
 
@@ -263,6 +275,21 @@ class DiscrepancyReporterAgent:
     def _normalize_path(path: str) -> str:
         """Normalize path for comparison: lowercase, strip trailing slash."""
         return path.rstrip("/").lower()
+
+    def _strip_base_path(self, path: str) -> str:
+        """
+        Normalise an impl-extracted path and strip the spec base-path prefix
+        when present.  Examples (base_path="/rest"):
+            "/rest/v1/all"      → "/v1/all"
+            "/rest/v1/alpha/"   → "/v1/alpha"   (trailing slash also removed)
+            "/v2/all"           → "/v2/all"      (no prefix — left unchanged)
+        """
+        normalised = path.rstrip("/").lower()
+        if self.spec_base_path and normalised.startswith(self.spec_base_path):
+            stripped = normalised[len(self.spec_base_path):]
+            # Ensure the result still starts with '/'
+            return stripped if stripped.startswith("/") else "/" + stripped
+        return normalised
 
     @staticmethod
     def _normalize_code(code: str) -> str:
