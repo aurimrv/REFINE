@@ -129,12 +129,26 @@ CRITICAL RULES — read carefully before extracting:
      NOTE: When in doubt, include "500" — it is safer to over-report than to
      miss a code that the server can genuinely emit.
 
-   404 Not Found — include "404" when:
-     • The endpoint receives a path or query parameter that is used to look up
-       an entity, and the code returns a 404 / NOT_FOUND response when the
-       entity is not found.
-     • The framework has a registered NotFoundException handler (e.g.,
-       NotFoundExceptionMapper) that maps unresolved paths to 404.
+   404 Not Found — include "404" ONLY when at least ONE of these is true:
+     • The handler code itself explicitly builds and returns a 404 / NOT_FOUND
+       response (e.g. Response.status(404), Response.status(Status.NOT_FOUND),
+       return ResponseEntity.notFound(), abort(404), raise HTTPException(404)).
+     • There is a registered ExceptionMapper / @ControllerAdvice / error handler
+       that explicitly maps a "not found" exception class to HTTP 404.
+     DO NOT infer 404 just because the endpoint performs an entity lookup.
+     Without an explicit mapping, a missing entity typically causes a NullPointerException
+     or ObjectNotFoundException to propagate as 500, not 404.
+
+   409 Conflict — include "409" ONLY when at least ONE of these is true:
+     • The handler explicitly returns a 409 / CONFLICT response.
+     • There is a registered ExceptionMapper that maps a "duplicate" or "already exists"
+       exception to HTTP 409.
+     DO NOT infer 409 just because a DuplicatedException or similar is thrown.
+     Without a mapper, that exception propagates as 500.
+     NEGATIVE EXAMPLE: if the code does `throw new DuplicatedObjectException(name)`
+     but the JerseyConfig / Spring context registers NO ExceptionMapper for it,
+     the result is HTTP 500 — not 409. Only include 409 if you can identify a
+     concrete mapper or explicit `Response.status(409)` in the same codebase.
 
    405 Method Not Allowed — include "405" when:
      • The handler explicitly returns a METHOD_NOT_ALLOWED status.
