@@ -109,17 +109,50 @@ CRITICAL RULES — read carefully before extracting:
    b. The full URL path pattern assembled from all path annotations/prefixes
       (e.g., if a class has @Path("/v2") and a method has @Path("/alpha/{code}"),
       the full path is /v2/alpha/{code}).
-   c. All HTTP response/status codes that the implementation explicitly returns or throws.
+   c. All HTTP response/status codes that the implementation explicitly returns or throws,
+      PLUS any implicit codes that the runtime/container will emit automatically
+      (see rule 4 below for the inference rules).
    d. A brief description of what the endpoint does.
    e. The parameters (path, query, header) the endpoint accepts.
-4. Return ONLY a valid JSON array. Do NOT include markdown fences or extra text.
-5. If no endpoint DEFINITIONS are found, return an empty JSON array: []
+4. IMPLICIT RESPONSE CODE INFERENCE — apply these rules to every endpoint:
+
+   500 Internal Server Error — include "500" when ANY of these conditions hold:
+     • The handler method declares "throws SomeException" and does NOT have a
+       try/catch that covers the entire method body.
+     • The handler calls external services, DAOs, repositories, or databases
+       without wrapping every call in try/catch.
+     • The handler instantiates objects that can throw checked or unchecked
+       exceptions (e.g., new URI(...), new URL(...)).
+     • The framework/container does not have a registered global ExceptionMapper
+       (JAX-RS), @ControllerAdvice (Spring), or equivalent that converts all
+       unhandled exceptions into a non-500 response.
+     NOTE: When in doubt, include "500" — it is safer to over-report than to
+     miss a code that the server can genuinely emit.
+
+   404 Not Found — include "404" when:
+     • The endpoint receives a path or query parameter that is used to look up
+       an entity, and the code returns a 404 / NOT_FOUND response when the
+       entity is not found.
+     • The framework has a registered NotFoundException handler (e.g.,
+       NotFoundExceptionMapper) that maps unresolved paths to 404.
+
+   405 Method Not Allowed — include "405" when:
+     • The handler explicitly returns a METHOD_NOT_ALLOWED status.
+     • A POST/PUT/DELETE handler exists at a path that also has a GET, and
+       the framework will reject unsupported methods with 405.
+
+   400 Bad Request — include "400" only when the code explicitly validates
+   input and returns BAD_REQUEST, or when framework binding (type mismatch on
+   a strongly-typed path/query parameter) is known to produce 400.
+
+5. Return ONLY a valid JSON array. Do NOT include markdown fences or extra text.
+6. If no endpoint DEFINITIONS are found, return an empty JSON array: []
 
 Each element must follow this exact structure:
 {
   "method": "GET",
   "path": "/v2/alpha/{alphacode}",
-  "response_codes": ["200", "400", "404"],
+  "response_codes": ["200", "400", "404", "500"],
   "description": "Returns a country by its ISO alpha code.",
   "parameters": [
     {"name": "alphacode", "in": "path", "description": "ISO 3166-1 alpha-2 or alpha-3 code"}
