@@ -1,5 +1,7 @@
 # REFINE (REst From code and INferred Enhancement)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **REFINE** is an open-source, LLM-based multi-agent tool that automatically
 **aligns an OpenAPI specification with the API source code** and **enriches it
 with realistic, domain-grounded examples**. Given an OpenAPI document and,
@@ -227,6 +229,12 @@ accordingly. The bundled schemas live in `schemas/`:
 | R10 | Swagger 2.0 | Add a default `consumes` for operations using `formData`. |
 
 Errors that survive auto-repair are logged as warnings for manual review.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
