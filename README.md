@@ -4,7 +4,7 @@
 
 > This repository is the artifact of the paper **"REFINE: REst From code and
 > INferred Enhancement"**, accepted at the Tools Track of the XL Brazilian
-> Symposium on Software Engineering (SBES'26). *(link/DOI to be added)*
+> Symposium on Software Engineering (SBES'26).
 
 **REFINE** is an open-source, LLM-based multi-agent tool that automatically
 **aligns an OpenAPI specification with the API source code** and **enriches it
@@ -278,10 +278,8 @@ Errors that survive auto-repair are logged as warnings for manual review.
 
 This tool is described in the paper *"REFINE: REst From code and INferred
 Enhancement"*, accepted at the Tools Track of the XL Brazilian Symposium on
-Software Engineering (SBES'26). A link to the published version (or preprint)
-will be added here.
-
-**Paper:** *(link/DOI to be added)*
+Software Engineering (SBES'26). The official link will be added once the
+proceedings are published.
 
 ---
 
