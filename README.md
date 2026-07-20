@@ -298,7 +298,7 @@ REFINE/
 ├── main.py                 # CLI entry point
 ├── requirements.txt        # Core dependencies
 ├── .env.example            # Configuration template
-├── example/                # Ready-to-run example (restcountries) + sample outputs
+├── example/                # Ready-to-run examples
 ├── docs/
 │   ├── refine-architecture.pdf
 │   └── project_structure.md
