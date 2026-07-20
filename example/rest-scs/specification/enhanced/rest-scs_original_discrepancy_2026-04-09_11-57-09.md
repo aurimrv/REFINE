@@ -1,0 +1,120 @@
+# OpenAPI Spec vs. Implementation — Discrepancy Report
+
+**Generated at:** 2026-04-09T11:58:12  
+**Specification file:** `/local/ar_benchmark/api-test-generator-impls/api-spec-improver/examples/rest-scs/rest-scs_original.json`  
+**Source code directory:** `/local/ar_benchmark/api-test-generator-impls/experiment/projects/rest-scs`  
+
+## Executive Summary
+
+| Metric | Count |
+|---|---|
+| Total endpoints analyzed | 11 |
+| Fully aligned (MATCH) | 0 |
+| Missing in implementation (MISSING_IN_IMPL) | 0 |
+| Missing in specification (MISSING_IN_SPEC) | 0 |
+| Response code mismatches (RETCODE_MISMATCH) | 11 |
+| Parameter mismatches (PARAM_MISMATCH) | 0 |
+
+## Response Code Mismatches
+
+### `GET /api/calc/{op}/{arg1}/{arg2}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `400`, `500`  
+**Spec parameters:** `arg1` (path), `arg2` (path), `op` (path)  
+**Impl parameters:** `op` (path), `arg1` (path), `arg2` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['400', '500'].  
+
+### `GET /api/cookie/{name}/{val}/{site}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `name` (path), `site` (path), `val` (path)  
+**Impl parameters:** `name` (path), `val` (path), `site` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/costfuns/{i}/{s}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `400`, `500`  
+**Spec parameters:** `i` (path), `s` (path)  
+**Impl parameters:** `i` (path), `s` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['400', '500'].  
+
+### `GET /api/dateparse/{dayname}/{monthname}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `dayname` (path), `monthname` (path)  
+**Impl parameters:** `dayname` (path), `monthname` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/filesuffix/{directory}/{file}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `directory` (path), `file` (path)  
+**Impl parameters:** `directory` (path), `file` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/notypevar/{i}/{s}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `400`, `500`  
+**Spec parameters:** `i` (path), `s` (path)  
+**Impl parameters:** `i` (path), `s` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['400', '500'].  
+
+### `GET /api/ordered4/{w}/{x}/{z}/{y}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `w` (path), `x` (path), `y` (path), `z` (path)  
+**Impl parameters:** `w` (path), `x` (path), `z` (path), `y` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/pat/{txt}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `txt` (path)  
+**Impl parameters:** `txt` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/pat/{txt}/{pat}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `pat` (path), `txt` (path)  
+**Impl parameters:** `txt` (path), `pat` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/text2txt/{word1}/{word2}/{word3}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `word1` (path), `word2` (path), `word3` (path)  
+**Impl parameters:** `word1` (path), `word2` (path), `word3` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+### `GET /api/title/{sex}/{title}`
+
+**Category:** `RETCODE_MISMATCH`  
+**Spec response codes:** `200`, `401`, `403`, `404`  
+**Impl response codes:** `200`, `500`  
+**Spec parameters:** `sex` (path), `title` (path)  
+**Impl parameters:** `sex` (path), `title` (path)  
+**Notes:** Response codes only in spec: ['401', '403', '404']. Response codes only in impl: ['500'].  
+
+---
+*Report generated by OpenAPI Spec Improver on 2026-04-09T11:58:12.*

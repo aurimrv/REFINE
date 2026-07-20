@@ -1,0 +1,1063 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Examples of different string algorithms accessible via REST",
+    "version": "1.0",
+    "title": "API for String Case Study (SCS)"
+  },
+  "schemes": [
+    "http"
+  ],
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "scs-rest",
+      "description": "Scs Rest"
+    }
+  ],
+  "paths": {
+    "/api/calc/{op}/{arg1}/{arg2}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "calc",
+        "operationId": "calcUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "arg1",
+            "in": "path",
+            "description": "arg1",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 15.5
+          },
+          {
+            "name": "arg2",
+            "in": "path",
+            "description": "arg2",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 4.5
+          },
+          {
+            "name": "op",
+            "in": "path",
+            "description": "op",
+            "required": true,
+            "type": "string",
+            "x-example": "add"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "20.0"
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:00:00.000Z",
+                "status": 400,
+                "error": "Bad Request",
+                "message": "Invalid number format for input string: \"twenty\"",
+                "path": "/api/calc/add/10/twenty"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:01:00.000Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An arithmetic error occurred: / by zero",
+                "path": "/api/calc/divide/100/0"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical_addition",
+              "op": "add",
+              "arg1": 15.5,
+              "arg2": 4.5
+            },
+            {
+              "_name": "edge_case_subtraction",
+              "op": "subtract",
+              "arg1": 0,
+              "arg2": -50.25
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type_for_argument",
+              "op": "add",
+              "arg1": 10,
+              "arg2": "twenty"
+            },
+            {
+              "_name": "unsupported_operation",
+              "op": "power",
+              "arg1": 2,
+              "arg2": 8
+            },
+            {
+              "_name": "missing_operation",
+              "op": "",
+              "arg1": 100,
+              "arg2": 50
+            }
+          ],
+          "500": [
+            {
+              "_name": "division_by_zero",
+              "op": "divide",
+              "arg1": 100,
+              "arg2": 0
+            },
+            {
+              "_name": "numeric_overflow",
+              "op": "multiply",
+              "arg1": 1.7976931348623157e+308,
+              "arg2": 100
+            },
+            {
+              "_name": "numeric_underflow",
+              "op": "divide",
+              "arg1": 5e-324,
+              "arg2": 1e+300
+            }
+          ]
+        }
+      }
+    },
+    "/api/cookie/{name}/{val}/{site}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "cookie",
+        "operationId": "cookieUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "name",
+            "required": true,
+            "type": "string",
+            "x-example": "session-id"
+          },
+          {
+            "name": "site",
+            "in": "path",
+            "description": "site",
+            "required": true,
+            "type": "string",
+            "x-example": "example.com"
+          },
+          {
+            "name": "val",
+            "in": "path",
+            "description": "val",
+            "required": true,
+            "type": "string",
+            "x-example": "abc-123-xyz-789"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "Cookie 'session-id' for site 'example.com' processed."
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:00:00.000Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred on the server.",
+                "path": "/api/cookie//some-value/example.com"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "name": "session-id",
+              "site": "example.com",
+              "val": "abc-123-xyz-789"
+            },
+            {
+              "_name": "edge_case",
+              "name": "user",
+              "site": "localhost",
+              "val": "1"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "name": "user/settings",
+              "site": "example.com",
+              "val": "true"
+            },
+            {
+              "_name": "boundary_violation",
+              "name": "auth_token",
+              "site": "api.example.org",
+              "val": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c-SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c-SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c-SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            },
+            {
+              "_name": "null_or_missing",
+              "name": "",
+              "site": "example.com",
+              "val": "some-value"
+            }
+          ]
+        }
+      }
+    },
+    "/api/costfuns/{i}/{s}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "costfuns",
+        "operationId": "costfunsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "i",
+            "in": "path",
+            "description": "i",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 1
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "description": "s",
+            "required": true,
+            "type": "string",
+            "x-example": "algorithm"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "9.0"
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:00:15.123Z",
+                "status": 400,
+                "error": "Bad Request",
+                "message": "Invalid parameter 'i': must be a valid 32-bit integer.",
+                "path": "/api/costfuns/one/test"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:01:45.456Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while calculating the cost function."
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "i": 1,
+              "s": "algorithm"
+            },
+            {
+              "_name": "edge_case",
+              "i": 0,
+              "s": "a"
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "i": "one",
+              "s": "test"
+            },
+            {
+              "_name": "boundary_violation",
+              "i": -1,
+              "s": "negative_index"
+            },
+            {
+              "_name": "null_or_missing",
+              "i": 2,
+              "s": ""
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "i": 3000000000,
+              "s": "integer_overflow"
+            },
+            {
+              "_name": "boundary_violation",
+              "i": 1,
+              "s": "ThisIsAnExcessivelyLongStringToTestTheLimitsOfTheAPIServerAndPotentiallyTriggerAnInternalServerErrorDueToResourceExhaustionOrTimeoutsWhenProcessingTheInputStringWhichExceedsNormalUsagePatternsAndCouldRevealUnhandledEdgeCasesInTheCostFunctionImplementation."
+            },
+            {
+              "_name": "null_or_missing",
+              "i": 5,
+              "s": "string_with_null_char\u0000"
+            }
+          ]
+        }
+      }
+    },
+    "/api/dateparse/{dayname}/{monthname}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "dateParse",
+        "operationId": "dateParseUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "dayname",
+            "in": "path",
+            "description": "dayname",
+            "required": true,
+            "type": "string",
+            "x-example": "Wednesday"
+          },
+          {
+            "name": "monthname",
+            "in": "path",
+            "description": "monthname",
+            "required": true,
+            "type": "string",
+            "x-example": "August"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "Successfully parsed date: Wednesday, August"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-05-19T14:30:00.000+00:00",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "Error parsing date components. Please provide valid day and month names.",
+                "path": "/api/dateparse/Superday/Movember"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "dayname": "Wednesday",
+              "monthname": "August"
+            },
+            {
+              "_name": "edge_case",
+              "dayname": "tuesday",
+              "monthname": "MAR"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "dayname": "123",
+              "monthname": "456"
+            },
+            {
+              "_name": "boundary_violation",
+              "dayname": "Superday",
+              "monthname": "Movember"
+            },
+            {
+              "_name": "null_or_missing",
+              "dayname": "Monday",
+              "monthname": ""
+            }
+          ]
+        }
+      }
+    },
+    "/api/filesuffix/{directory}/{file}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "fileSuffix",
+        "operationId": "fileSuffixUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "directory",
+            "in": "path",
+            "description": "directory",
+            "required": true,
+            "type": "string",
+            "x-example": "/home/user/documents"
+          },
+          {
+            "name": "file",
+            "in": "path",
+            "description": "file",
+            "required": true,
+            "type": "string",
+            "x-example": "quarterly_report.docx"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "docx"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-05-11T14:35:12.456+00:00",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing file suffix.",
+                "path": "/api/filesuffix/usr/share/assets/image:v1.jpg"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "directory": "/home/user/documents",
+              "file": "quarterly_report.docx"
+            },
+            {
+              "_name": "edge_case",
+              "directory": "/var/log/apache2",
+              "file": "access.log.1.gz"
+            }
+          ],
+          "500": [
+            {
+              "_name": "malformed_filename",
+              "directory": "/var/log",
+              "file": "access.log%00.bak"
+            },
+            {
+              "_name": "path_too_long",
+              "directory": "a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a",
+              "file": "data.csv"
+            },
+            {
+              "_name": "invalid_filesystem_chars",
+              "directory": "/usr/share/assets",
+              "file": "image:v1.jpg"
+            }
+          ]
+        }
+      }
+    },
+    "/api/notypevar/{i}/{s}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "notyPevar",
+        "operationId": "notyPevarUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "i",
+            "in": "path",
+            "description": "i",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 5
+          },
+          {
+            "name": "s",
+            "in": "path",
+            "description": "s",
+            "required": true,
+            "type": "string",
+            "x-example": "example-string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Client error — 400"
+          },
+          "500": {
+            "description": "Server error — 500"
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "i": 5,
+              "s": "example-string"
+            },
+            {
+              "_name": "edge_case",
+              "i": 0,
+              "s": "a"
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type_for_integer",
+              "i": "abc",
+              "s": "some-string"
+            },
+            {
+              "_name": "integer_out_of_bounds",
+              "i": 2147483648,
+              "s": "max-int-plus-one"
+            },
+            {
+              "_name": "empty_string_for_integer",
+              "i": "",
+              "s": "valid-string"
+            }
+          ]
+        }
+      }
+    },
+    "/api/ordered4/{w}/{x}/{z}/{y}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "ordered4",
+        "operationId": "ordered4UsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "w",
+            "in": "path",
+            "description": "w",
+            "required": true,
+            "type": "string",
+            "x-example": "zebra"
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "x",
+            "required": true,
+            "type": "string",
+            "x-example": "yak"
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "description": "y",
+            "required": true,
+            "type": "string",
+            "x-example": "wolf"
+          },
+          {
+            "name": "z",
+            "in": "path",
+            "description": "z",
+            "required": true,
+            "type": "string",
+            "x-example": "x-ray"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "wolfx-rayyakzebra"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-04-12T14:45:12.123Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the request.",
+                "path": "/api/ordered4/first/second//fourth"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "w": "zebra",
+              "x": "yak",
+              "z": "x-ray",
+              "y": "wolf"
+            },
+            {
+              "_name": "edge_case",
+              "w": "99",
+              "x": "100",
+              "z": "9",
+              "y": "10"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "w": "apple",
+              "x": "banana",
+              "z": "cherry",
+              "y": " "
+            },
+            {
+              "_name": "boundary_violation",
+              "w": "a",
+              "x": "b",
+              "z": "c",
+              "y": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+            },
+            {
+              "_name": "null_or_missing",
+              "w": "first",
+              "x": "second",
+              "z": "",
+              "y": "fourth"
+            }
+          ]
+        }
+      }
+    },
+    "/api/pat/{txt}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "regex",
+        "operationId": "regexUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "txt",
+            "in": "path",
+            "description": "txt",
+            "required": true,
+            "type": "string",
+            "x-example": "The quick brown fox jumps over the lazy dog."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "Input text processed successfully."
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-05-15T10:30:00.000Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the regular expression.",
+                "path": "/api/pat/(abc"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "txt": "The quick brown fox jumps over the lazy dog."
+            },
+            {
+              "_name": "edge_case",
+              "txt": "a"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "txt": "(abc"
+            },
+            {
+              "_name": "boundary_violation",
+              "txt": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "_name": "null_or_missing",
+              "txt": ""
+            }
+          ]
+        }
+      }
+    },
+    "/api/pat/{txt}/{pat}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "pat",
+        "operationId": "patUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "pat",
+            "in": "path",
+            "description": "pat",
+            "required": true,
+            "type": "string",
+            "x-example": "ABAB"
+          },
+          {
+            "name": "txt",
+            "in": "path",
+            "description": "txt",
+            "required": true,
+            "type": "string",
+            "x-example": "ABABCABAB"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "Pattern found at index 0 4"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:00:00.000Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the pattern search.",
+                "path": "/api/pat/some-text-to-search/"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "pat": "ABAB",
+              "txt": "ABABCABAB"
+            },
+            {
+              "_name": "edge_case",
+              "pat": "a",
+              "txt": "banana"
+            }
+          ],
+          "500": [
+            {
+              "_name": "null_or_missing",
+              "pat": "",
+              "txt": "some-text-to-search"
+            },
+            {
+              "_name": "invalid_characters",
+              "pat": "Ã§",
+              "txt": "text-with-non-ascii-Ã©Ã¨Ã§"
+            },
+            {
+              "_name": "extremely_long_input",
+              "pat": "pattern",
+              "txt": "ThisIsAVeryLongTextStringThatKeepsGoingOnAndOnToSimulateAnInputThatMightExceedServerSideBufferLimitsOrCausePerformanceDegradationLeadingToAnInternalServerError.ThisIsAVeryLongTextStringThatKeepsGoingOnAndOnToSimulateAnInputThatMightExceedServerSideBufferLimitsOrCausePerformanceDegradationLeadingToAnInternalServerError.ThisIsAVeryLongTextStringThatKeepsGoingOnAndOnToSimulateAnInputThatMightExceedServerSideBufferLimitsOrCausePerformanceDegradationLeadingToAnInternalServerError"
+            }
+          ]
+        }
+      }
+    },
+    "/api/text2txt/{word1}/{word2}/{word3}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "text2txt",
+        "operationId": "text2txtUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "word1",
+            "in": "path",
+            "description": "word1",
+            "required": true,
+            "type": "string",
+            "x-example": "The"
+          },
+          {
+            "name": "word2",
+            "in": "path",
+            "description": "word2",
+            "required": true,
+            "type": "string",
+            "x-example": "quick"
+          },
+          {
+            "name": "word3",
+            "in": "path",
+            "description": "word3",
+            "required": true,
+            "type": "string",
+            "x-example": "brown"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "The quick brown"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2024-07-15T10:30:00.000+00:00",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred on the server.",
+                "path": "/api/text2txt/The//fox"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "word1": "The",
+              "word2": "quick",
+              "word3": "brown"
+            },
+            {
+              "_name": "edge_case",
+              "word1": "a",
+              "word2": "1",
+              "word3": "$"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_character_encoding",
+              "word1": "The",
+              "word2": "quick\u0000brown",
+              "word3": "fox"
+            },
+            {
+              "_name": "excessively_long_string",
+              "word1": "The",
+              "word2": "quick",
+              "word3": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            {
+              "_name": "empty_string_for_required_param",
+              "word1": "The",
+              "word2": "",
+              "word3": "fox"
+            }
+          ]
+        }
+      }
+    },
+    "/api/title/{sex}/{title}": {
+      "get": {
+        "tags": [
+          "scs-rest"
+        ],
+        "summary": "title",
+        "operationId": "titleUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "sex",
+            "in": "path",
+            "description": "sex",
+            "required": true,
+            "type": "string",
+            "x-example": "male"
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "description": "title",
+            "required": true,
+            "type": "string",
+            "x-example": "Smith"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "application/json": "Mr. Smith"
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-08-29T14:15:22.123+00:00",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the title.",
+                "path": "/api/title/neuter/Jones"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "sex": "male",
+              "title": "Smith"
+            },
+            {
+              "_name": "edge_case",
+              "sex": "f",
+              "title": "Li"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "sex": "neuter",
+              "title": "Jones"
+            },
+            {
+              "_name": "boundary_violation",
+              "sex": "female",
+              "title": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "sex": "male",
+              "title": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

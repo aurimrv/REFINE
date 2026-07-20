@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Fat-JAR builder — run with:
+            mvn install -DskipTests
+            mvn package -f pom-fat-jar.xml
+
+        Produces: target/api-impl.jar  (standard flat layout, loadable by JVM)
+        No changes to the original pom.xml required.
+    -->
+
+    <groupId>fat-jar-builder</groupId>
+    <artifactId>api-impl-fat-jar</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- ============================================================
+             CONFIGURE THESE to match the target project's coordinates
+             ============================================================ -->
+        <target.groupId>eu.fayder</target.groupId>
+        <target.artifactId>restcountries</target.artifactId>
+        <target.version>2.0.6-SNAPSHOT</target.version>
+        <!-- Output JAR name (copied to target/ of this builder POM) -->
+        <fat.jar.name>restcountries-impl</fat.jar.name>
+    </properties>
+
+    <dependencies>
+        <!-- The project to bundle — must be installed first via mvn install -->
+        <dependency>
+            <groupId>${target.groupId}</groupId>
+            <artifactId>${target.artifactId}</artifactId>
+            <version>${target.version}</version>
+            <!-- Exclude the Spring Boot repackaged artifact — use the original thin jar -->
+            <classifier></classifier>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- No sources to compile — skip compilation entirely -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <skipMain>true</skipMain>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.directory}/${fat.jar.name}.jar</outputFile>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+
+                            <artifactSet>
+                                <excludes>
+                                    <!-- Provided by the container / test runner -->
+                                    <exclude>javax.servlet:javax.servlet-api</exclude>
+                                    <!-- Spring Boot launcher — not needed for classpath loading -->
+                                    <exclude>org.springframework.boot:spring-boot-loader</exclude>
+                                    <!-- Test deps — never needed at test compile time of other projects -->
+                                    <exclude>junit:junit</exclude>
+                                    <exclude>org.hamcrest:*</exclude>
+                                </excludes>
+                            </artifactSet>
+
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- Avoid JAR signing conflicts -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!-- Avoid JPMS conflicts on Java 9+ -->
+                                        <exclude>module-info.class</exclude>
+                                        <!-- Strip Spring Boot BOOT-INF layout if present -->
+                                        <exclude>BOOT-INF/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

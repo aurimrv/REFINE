@@ -1,0 +1,1508 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "API"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/products/{productName}/features": {
+      "get": {
+        "operationId": "getFeaturesForProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "AeroBook-Pro-15"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/definitions/Feature"
+              }
+            },
+            "headers": {},
+            "examples": {
+              "application/json": [
+                {
+                  "featureName": "15.6-inch OLED Display",
+                  "description": "Vibrant colors and deep blacks with a 4K resolution screen."
+                },
+                {
+                  "featureName": "16GB LPDDR5 RAM",
+                  "description": "High-speed memory for seamless multitasking and performance."
+                },
+                {
+                  "featureName": "1TB NVMe SSD",
+                  "description": "Ultra-fast solid-state drive for quick boot times and application loading."
+                },
+                {
+                  "featureName": "Backlit Keyboard",
+                  "description": "Comfortable typing experience in any lighting condition."
+                }
+              ]
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the request.",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "traceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "AeroBook-Pro-15"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "USB-C-Dongle"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "product/with/slashes"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "ThisProductNameIsIntentionallyMadeExtremelyLongToExceedPotentialDatabaseColumnLimitsOrOtherBackendProcessingBuffersWhichCouldLeadToAnUnhandledExceptionAndResultInAnInternalServerErrorResponseCodeFiveHundred"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": ""
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/features/{featureName}": {
+      "post": {
+        "operationId": "addFeatureToProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Smartwatch Series 8"
+          },
+          {
+            "name": "featureName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Blood Oxygen Sensor"
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "Measures the oxygen saturation (SpO2) of your blood on demand."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {
+                "status": "success",
+                "message": "Feature 'Blood Oxygen Sensor' added to product 'Smartwatch Series 8'.",
+                "data": {
+                  "productName": "Smartwatch Series 8",
+                  "featureName": "Blood Oxygen Sensor",
+                  "description": "Measures the oxygen saturation (SpO2) of your blood on demand."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "message": "Internal Server Error"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "Smartwatch Series 8",
+              "featureName": "Blood Oxygen Sensor",
+              "description": "Measures the oxygen saturation (SpO2) of your blood on demand."
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Wireless-Earbuds-Pro",
+              "featureName": "ANC",
+              "description": ""
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "Gaming-PC-Tower",
+              "featureName": "Liquid Cooling",
+              "description": "Using special characters that might be improperly handled by the server's backend logic, causing an unhandled exception. \u0000"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "UltraBook-Z1",
+              "featureName": "a_feature_name_that_is_extremely_long_and_exceeds_the_likely_database_column_width_limit_for_storing_feature_names_which_could_cause_an_unhandled_sql_exception_or_a_buffer_overflow_if_the_server_side_code_is_not_robustly_written_to_handle_such_long_inputs",
+              "description": "A feature name that is excessively long."
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "",
+              "featureName": "Fingerprint-Reader",
+              "description": "Providing an empty string for a required path parameter, which might not be anticipated by the server routing or business logic, leading to a crash."
+            }
+          ]
+        },
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ]
+      },
+      "put": {
+        "operationId": "updateFeatureOfProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "AeroBook-Pro-15"
+          },
+          {
+            "name": "featureName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "backlit-keyboard"
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "RGB backlit keyboard with customizable zones and per-key lighting."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Feature"
+            },
+            "headers": {},
+            "examples": {
+              "application/json": {
+                "name": "backlit-keyboard",
+                "description": "RGB backlit keyboard with customizable zones and per-key lighting.",
+                "enabled": true
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "type": "InternalServerError",
+                "message": "An unexpected error occurred on the server."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "AeroBook-Pro-15",
+              "featureName": "backlit-keyboard",
+              "description": "RGB backlit keyboard with customizable zones and per-key lighting."
+            },
+            {
+              "_name": "edge_case",
+              "productName": "EcoTablet-10",
+              "featureName": "stylus-support"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "AeroBook-Pro-15",
+              "featureName": "camera-%00-injection",
+              "description": "Using a null byte character in the feature name, which might cause an unhandled exception in lower-level C/C++ code."
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "ThisIsAnExtremelyLongProductNameThatIsIntendedToExceedAnyReasonableLengthLimitImposedByTheDatabaseSchemaOrTheURLParserOfTheWebServerOrAnyIntermediateProxiesInOrderToTriggerAnUnhandledExceptionAndCauseAnInternalServerErrorResponseCode500",
+              "featureName": "storage",
+              "description": "Testing with an excessively long product name that could cause a buffer overflow or database error."
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "AeroBook-Pro-15",
+              "featureName": "",
+              "description": "Sending an empty string for a required path parameter, which may not be handled gracefully by the server's routing logic."
+            }
+          ]
+        },
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteFeatureOfProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "SmartWatch-Pro"
+          },
+          {
+            "name": "featureName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "heart-rate-monitor"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "An unexpected error occurred while trying to delete the product feature."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "204": [
+            {
+              "_name": "typical",
+              "productName": "SmartWatch-Pro",
+              "featureName": "heart-rate-monitor"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "X1",
+              "featureName": "nfc-v3-support"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "E-Reader-K2",
+              "featureName": "a_very_long_feature_name_that_exceeds_the_maximum_allowed_length_for_a_feature_identifier_in_the_database_and_causes_a_string_truncation_or_buffer_overflow_error_leading_to_an_unhandled_exception_and_a_500_internal_server_error_response"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "Security-Camera-HD",
+              "featureName": "../../../etc/passwd"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "Wireless-Headphones",
+              "featureName": ""
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/configurations/{configurationName}/features/{featureName}": {
+      "post": {
+        "operationId": "addFeatureToConfiguration",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "QuantumLeap-AI-Platform"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "standard-gpu-cluster"
+          },
+          {
+            "name": "featureName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "distributed-training"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "message": "Internal Server Error"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "QuantumLeap-AI-Platform",
+              "configurationName": "standard-gpu-cluster",
+              "featureName": "distributed-training"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "P1",
+              "configurationName": "basic",
+              "featureName": "sso"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "QuantumLeap-AI-Platform",
+              "configurationName": "standard-gpu-cluster",
+              "featureName": "{\"feature\":\"new-feature\"}"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "QuantumLeap-AI-Platform",
+              "configurationName": "standard-gpu-cluster",
+              "featureName": "feature-name-that-is-intentionally-made-extremely-long-to-exceed-any-reasonable-database-column-width-or-url-path-segment-limit-and-potentially-cause-an-unhandled-exception-or-a-buffer-overflow-somewhere-deep-in-the-application-stack-resulting-in-a-generic-five-hundred-internal-server-error-response-instead-of-a-more-graceful-four-hundred-bad-request-error"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "QuantumLeap-AI-Platform",
+              "configurationName": "",
+              "featureName": "distributed-training"
+            }
+          ]
+        }
+      },
+      "delete": {
+        "operationId": "deleteFeature",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "QuantumLeap-AI"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Premium-Tier"
+          },
+          {
+            "name": "featureName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Realtime-Analytics-Dashboard"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-10-27T10:00:00Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while trying to delete the feature. Please contact support and provide the request ID.",
+                "requestId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "204": [
+            {
+              "_name": "typical",
+              "productName": "QuantumLeap-AI",
+              "configurationName": "Premium-Tier",
+              "featureName": "Realtime-Analytics-Dashboard"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "IoT-Sensor-Hub",
+              "configurationName": "Basic",
+              "featureName": "GPS"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "DataStreamer",
+              "configurationName": "Standard",
+              "featureName": "99"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "WebApp-Firewall",
+              "configurationName": "Max-Security",
+              "featureName": "feature-name-that-is-intentionally-made-very-long-to-exceed-potential-database-column-size-limits-or-other-internal-buffer-restrictions-leading-to-an-unhandled-server-side-exception-and-a-500-internal-server-error-response"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "Mobile-App-Backend",
+              "configurationName": "",
+              "featureName": "Push-Notifications"
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/configurations/{configurationName}/features": {
+      "get": {
+        "operationId": "getConfigurationActivedFeatures",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "ultra-laptop-x1"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "us-standard-16gb"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {},
+            "examples": {
+              "application/json": [
+                "fingerprint-scanner",
+                "4k-display",
+                "wifi-6e",
+                "thunderbolt-4-ports",
+                "backlit-keyboard"
+              ]
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "An unexpected error occurred on the server."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "ultra-laptop-x1",
+              "configurationName": "us-standard-16gb"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "iot-sensor-2",
+              "configurationName": "base"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_format",
+              "productName": "web-server-pro",
+              "configurationName": "config' OR '1'='1"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "a_very_long_product_name_that_likely_exceeds_the_maximum_allowed_length_in_the_database_or_application_logic_leading_to_an_unhandled_exception_and_a_generic_server_error_response",
+              "configurationName": "standard"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "firewall-appliance",
+              "configurationName": ""
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/configurations": {
+      "get": {
+        "operationId": "getConfigurationsForProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Laptop-Pro-X15"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {},
+            "examples": {
+              "application/json": [
+                "16GB RAM, 512GB SSD, Silver",
+                "16GB RAM, 1TB SSD, Silver",
+                "32GB RAM, 1TB SSD, Space Gray",
+                "32GB RAM, 2TB SSD, Space Gray"
+              ]
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the request."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "Laptop-Pro-X15"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "USB-C-Adapter"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "product/with/slashes"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "a-product-name-that-is-intentionally-made-extremely-long-to-surpass-any-reasonable-character-limit-that-might-be-enforced-by-the-database-or-the-application-logic-potentially-causing-an-unhandled-exception-or-a-buffer-overflow-which-would-result-in-a-500-internal-server-error"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": ""
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/configurations/{configurationName}": {
+      "get": {
+        "operationId": "getConfigurationWithNameForProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "MobileApp-Backend"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "production-us-east-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/ProductConfiguration"
+            },
+            "headers": {},
+            "examples": {
+              "application/json": {
+                "configurationName": "production-us-east-1",
+                "productName": "MobileApp-Backend",
+                "settings": {
+                  "database_url": "postgres://prod-user@db.us-east-1.internal:5432/main_db",
+                  "cache_enabled": true,
+                  "feature_flags": {
+                    "new_user_onboarding": true,
+                    "realtime_analytics": false
+                  },
+                  "threads": 16
+                },
+                "lastUpdated": "2023-10-27T10:00:00Z",
+                "version": "v1.2.3"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while retrieving the product configuration.",
+                "timestamp": "2023-08-15T14:30:00Z",
+                "traceId": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "MobileApp-Backend",
+              "configurationName": "production-us-east-1"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Data-Ingest-Service-v3",
+              "configurationName": "dev"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "MobileApp-Backend",
+              "configurationName": 12345
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "Data-Ingest-Service-v3",
+              "configurationName": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "null",
+              "configurationName": "production"
+            }
+          ]
+        }
+      },
+      "post": {
+        "operationId": "addConfiguration",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "smart-thermostat-v3"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "us-standard-wifi"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {
+                "status": "created",
+                "productName": "smart-thermostat-v3",
+                "configurationName": "us-standard-wifi"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "message": "An unexpected internal server error has occurred."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "smart-thermostat-v3",
+              "configurationName": "us-standard-wifi"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "z1",
+              "configurationName": "base"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "gaming-console-pro",
+              "configurationName": "a-very-long-configuration-name-that-exceeds-the-maximum-allowed-length-and-could-potentially-cause-a-buffer-overflow-or-database-truncation-error-leading-to-an-internal-server-error-because-the-system-was-not-designed-to-handle-such-long-inputs-gracefully"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "security-camera-4k",
+              "configurationName": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "null",
+              "configurationName": "default-config"
+            }
+          ]
+        }
+      },
+      "delete": {
+        "operationId": "deleteConfiguration",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "nexus-dashboard"
+          },
+          {
+            "name": "configurationName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "production-us-east"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response"
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "message": "An unexpected internal server error has occurred."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "204": [
+            {
+              "_name": "typical",
+              "productName": "nexus-dashboard",
+              "configurationName": "production-us-east"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "api-gateway",
+              "configurationName": "v1"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "user-service",
+              "configurationName": "config/v2"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "auth-service",
+              "configurationName": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "null",
+              "configurationName": "default"
+            }
+          ]
+        }
+      }
+    },
+    "/products/{productName}/constraints/requires": {
+      "post": {
+        "operationId": "addRequiresConstraintToProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Enterprise-Server-X1"
+          },
+          {
+            "name": "sourceFeature",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "RAID-Controller-Card"
+          },
+          {
+            "name": "requiredFeature",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "128GB-ECC-RAM"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {
+                "status": "success",
+                "message": "Constraint 'RAID-Controller-Card requires 128GB-ECC-RAM' added to product 'Enterprise-Server-X1'."
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while processing the request.",
+                "timestamp": "2023-05-21T14:48:00Z"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "Enterprise-Server-X1",
+              "sourceFeature": "RAID-Controller-Card",
+              "requiredFeature": "128GB-ECC-RAM"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Mobile-App-Basic",
+              "sourceFeature": "Push-Notifications",
+              "requiredFeature": "User-Authentication"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "Desktop-PC",
+              "sourceFeature": 12345,
+              "requiredFeature": "Graphics-Card"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": " ",
+              "sourceFeature": "FeatureA",
+              "requiredFeature": "FeatureB"
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "Web-Hosting-Package",
+              "sourceFeature": "SSD-Storage",
+              "requiredFeature": null
+            }
+          ]
+        },
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ]
+      }
+    },
+    "/products/{productName}/constraints/excludes": {
+      "post": {
+        "operationId": "addExcludesConstraintToProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Laptop-Pro-15"
+          },
+          {
+            "name": "sourceFeature",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "CPU-i9-13900H"
+          },
+          {
+            "name": "excludedFeature",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "x-example": "Integrated-Graphics-Only"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {
+                "id": "excl-const-a4b1c8d3",
+                "productName": "Laptop-Pro-15",
+                "constraintType": "EXCLUDES",
+                "sourceFeature": "CPU-i9-13900H",
+                "excludedFeature": "Integrated-Graphics-Only"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "timestamp": "2023-08-24T10:30:00.123Z",
+                "status": 500,
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred while creating the constraint. Please contact support.",
+                "traceId": "f4a9b1c8-d3e2-f1a0-b9c8-d7e6f5a4b3c2"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "Laptop-Pro-15",
+              "sourceFeature": "CPU-i9-13900H",
+              "excludedFeature": "Integrated-Graphics-Only"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Custom-T-Shirt",
+              "sourceFeature": "Color-Black",
+              "excludedFeature": "Logo-White-On-Black"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "Workstation-Z8",
+              "sourceFeature": "PSU-Redundant",
+              "excludedFeature": "PSU-Redundant"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "Smart-Watch-S3",
+              "sourceFeature": "Strap-Leather",
+              "excludedFeature": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "",
+              "sourceFeature": "OS-Windows-11-Pro",
+              "excludedFeature": "OS-Home"
+            }
+          ]
+        },
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ]
+      }
+    },
+    "/products/{productName}/constraints/{constraintId}": {
+      "delete": {
+        "operationId": "deleteConstraint",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "UltraPhoneX"
+          },
+          {
+            "name": "constraintId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "x-example": 12345
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred while processing the request."
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "204": [
+            {
+              "_name": "typical",
+              "productName": "UltraPhoneX",
+              "constraintId": 12345
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Basic-Charger-v1",
+              "constraintId": 1
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "PowerBankPro",
+              "constraintId": "abc-def"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "SmartWatchSE",
+              "constraintId": -100
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "",
+              "constraintId": 9876
+            }
+          ]
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "operationId": "getAllProducts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {},
+            "examples": {
+              "application/json": [
+                "Laptop Pro 15",
+                "Wireless Mouse X1",
+                "Mechanical Keyboard K7",
+                "4K Monitor 27-inch",
+                "USB-C Hub"
+              ]
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": 500,
+                "message": "Internal Server Error: The product database is currently unavailable."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{productName}": {
+      "get": {
+        "operationId": "getProductByName",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Smartwatch Series 7"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            },
+            "headers": {},
+            "examples": {
+              "application/json": {
+                "id": "prod_78910",
+                "name": "Smartwatch Series 7",
+                "description": "The latest smartwatch with a larger display and advanced health monitoring features.",
+                "price": 399.99,
+                "currency": "USD",
+                "inStock": true,
+                "category": "Electronics",
+                "attributes": {
+                  "color": "Midnight",
+                  "case_size": "45mm"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "code": "INTERNAL_SERVER_ERROR",
+                "message": "An unexpected error occurred while processing your request."
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "productName": "Smartwatch Series 7"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "USB-C Adapter"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_format_injection",
+              "productName": "Product' OR 1=1; --"
+            },
+            {
+              "_name": "boundary_violation_long_name",
+              "productName": "ThisIsAnExtremelyLongProductNameDesignedToExceedCharacterLimitsInBackendSystemsWhichMayNotBeHandledGracefullyAndCouldResultInAnUnhandledExceptionLeadingToAnInternalServerError."
+            },
+            {
+              "_name": "invalid_encoding",
+              "productName": "%E0%A4%A"
+            }
+          ]
+        }
+      },
+      "post": {
+        "operationId": "addProduct",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Wireless Mouse"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {
+                "productId": "prod_7a8b9c0d",
+                "productName": "Wireless Mouse",
+                "status": "created",
+                "createdAt": "2024-05-21T14:30:00Z"
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": "Internal Server Error",
+                "message": "An unexpected error occurred on the server.",
+                "timestamp": "2024-05-21T14:32:15Z",
+                "traceId": "e9f0a1b2-c3d4-5678-90ab-cdef12345678"
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "201": [
+            {
+              "_name": "typical",
+              "productName": "Wireless Mouse"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Super-HD-4K-Monitor-v2.1"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_characters",
+              "productName": "../../../etc/passwd"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": "ThisIsAnExtremelyLongProductNameThatIsIntendedToExceedAnyReasonableDatabaseColumnSizeLimitAndCauseAnInternalServerErrorWhenTheApplicationTriesToPersistItWithoutProperValidationOrTruncationLeadingToAnUnhandledDatabaseExceptionAndThereforeAFiveHundredError"
+            },
+            {
+              "_name": "whitespace_name",
+              "productName": "   "
+            }
+          ]
+        }
+      },
+      "delete": {
+        "operationId": "deleteProductByName",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "productName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-example": "Smartwatch Series 9"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful response",
+            "examples": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "examples": {
+              "application/json": {
+                "error": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred while trying to delete the product. Please try again later.",
+                  "timestamp": "2024-07-15T10:30:00Z"
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "204": [
+            {
+              "_name": "typical",
+              "productName": "Smartwatch Series 9"
+            },
+            {
+              "_name": "edge_case",
+              "productName": "Ultra-Thin Keyboard Cover"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "productName": "true"
+            },
+            {
+              "_name": "boundary_violation",
+              "productName": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "productName": "null"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProductsFeaturesResource": {
+      "type": "object"
+    },
+    "Feature": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "ProductsConfigurationResource": {
+      "type": "object"
+    },
+    "ProductsConfigurationFeaturesResource": {
+      "type": "object"
+    },
+    "ProductConfiguration": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "activedFeatures": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/Feature"
+          }
+        }
+      }
+    },
+    "ProductsConstraintsResource": {
+      "type": "object"
+    },
+    "FeatureConstraint": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "readOnly": true,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/Feature"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "readOnly": true,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/FeatureConstraint"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+timestamp,spec_file,src_home,model,seed,input_tokens,output_tokens
+2026-04-07T17:42:42.153496,/local/ar_benchmark/api-test-generator-impls/experiment/projects/restcountries/specification/original/restcountries_original.json,/local/ar_benchmark/api-test-generator-impls/experiment/projects/restcountries,moonshotai/kimi-k2-0905,42,48247,90787

@@ -1,0 +1,5091 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "REST countries API",
+    "description": "REST countries API",
+    "version": "v2.0.5"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/rest"
+    }
+  ],
+  "paths": {
+    "/v1/all": {
+      "get": {
+        "operationId": "v1All",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": {
+                      "_name": "typical",
+                      "value": [
+                        {
+                          "name": {
+                            "common": "Germany",
+                            "official": "Federal Republic of Germany",
+                            "native": {
+                              "deu": {
+                                "official": "Bundesrepublik Deutschland",
+                                "common": "Deutschland"
+                              }
+                            }
+                          },
+                          "tld": [
+                            ".de"
+                          ],
+                          "cca2": "DE",
+                          "ccn3": "276",
+                          "cca3": "DEU",
+                          "cioc": "GER",
+                          "independent": true,
+                          "status": "officially-assigned",
+                          "unMember": true,
+                          "currencies": {
+                            "EUR": {
+                              "name": "Euro",
+                              "symbol": "€"
+                            }
+                          },
+                          "idd": {
+                            "root": "+4",
+                            "suffixes": [
+                              "9"
+                            ]
+                          },
+                          "capital": [
+                            "Berlin"
+                          ],
+                          "altSpellings": [
+                            "DE",
+                            "Federal Republic of Germany",
+                            "Bundesrepublik Deutschland"
+                          ],
+                          "region": "Europe",
+                          "subregion": "Western Europe",
+                          "languages": {
+                            "deu": "German"
+                          },
+                          "translations": {
+                            "ara": {
+                              "official": "جمهورية ألمانيا الاتحادية",
+                              "common": "ألمانيا"
+                            },
+                            "bre": {
+                              "official": "Republik Kevreadel Alamagn",
+                              "common": "Alamagn"
+                            },
+                            "ces": {
+                              "official": "Spolková republika Německo",
+                              "common": "Německo"
+                            },
+                            "cym": {
+                              "official": "Federal Republic of Germany",
+                              "common": "Germany"
+                            },
+                            "deu": {
+                              "official": "Bundesrepublik Deutschland",
+                              "common": "Deutschland"
+                            },
+                            "est": {
+                              "official": "Saksamaa Liitvabariik",
+                              "common": "Saksamaa"
+                            },
+                            "fin": {
+                              "official": "Saksan liittotasavalta",
+                              "common": "Saksa"
+                            },
+                            "fra": {
+                              "official": "République fédérale d'Allemagne",
+                              "common": "Allemagne"
+                            },
+                            "hrv": {
+                              "official": "Njemačka Federativna Republika",
+                              "common": "Njemačka"
+                            },
+                            "hun": {
+                              "official": "Német Szövetségi Köztársaság",
+                              "common": "Németország"
+                            },
+                            "ita": {
+                              "official": "Repubblica federale di Germania",
+                              "common": "Germania"
+                            },
+                            "jpn": {
+                              "official": "ドイツ連邦共和国",
+                              "common": "ドイツ"
+                            },
+                            "kor": {
+                              "official": "독일 연방 공화국",
+                              "common": "독일"
+                            },
+                            "nld": {
+                              "official": "Bondsrepubliek Duitsland",
+                              "common": "Duitsland"
+                            },
+                            "per": {
+                              "official": "جمهوری فدرال آلمان",
+                              "common": "آلمان"
+                            },
+                            "pol": {
+                              "official": "Republika Federalna Niemiec",
+                              "common": "Niemcy"
+                            },
+                            "por": {
+                              "official": "República Federal da Alemanha",
+                              "common": "Alemanha"
+                            },
+                            "rus": {
+                              "official": "Федеративная Республика Германия",
+                              "common": "Германия"
+                            },
+                            "slk": {
+                              "official": "Nemecká spolková republika",
+                              "common": "Nemecko"
+                            },
+                            "spa": {
+                              "official": "República Federal de Alemania",
+                              "common": "Alemania"
+                            },
+                            "swe": {
+                              "official": "Förbundsrepubliken Tyskland",
+                              "common": "Tyskland"
+                            },
+                            "urd": {
+                              "official": "وفاقی جمہوریہ جرمنی",
+                              "common": "جرمنی"
+                            },
+                            "zho": {
+                              "official": "德意志联邦共和国",
+                              "common": "德国"
+                            }
+                          },
+                          "latlng": [
+                            51.0,
+                            9.0
+                          ],
+                          "landlocked": false,
+                          "borders": [
+                            "AUT",
+                            "BEL",
+                            "CZE",
+                            "DNK",
+                            "FRA",
+                            "LUX",
+                            "NLD",
+                            "POL",
+                            "CHE"
+                          ],
+                          "area": 357114.0,
+                          "demonyms": {
+                            "eng": {
+                              "f": "German",
+                              "m": "German"
+                            },
+                            "fra": {
+                              "f": "Allemande",
+                              "m": "Allemand"
+                            }
+                          },
+                          "flag": "🇩🇪",
+                          "maps": {
+                            "googleMaps": "https://goo.gl/maps/mD9FBnq1nvXUBr5hr",
+                            "openStreetMaps": "https://www.openstreetmap.org/relation/51477"
+                          },
+                          "population": 83240525,
+                          "gini": {
+                            "2016": 31.9
+                          },
+                          "fifa": "GER",
+                          "car": {
+                            "signs": [
+                              "DY"
+                            ],
+                            "side": "right"
+                          },
+                          "timezones": [
+                            "UTC+01:00"
+                          ],
+                          "continents": [
+                            "Europe"
+                          ],
+                          "flags": {
+                            "png": "https://flagcdn.com/w320/de.png",
+                            "svg": "https://flagcdn.com/de.svg",
+                            "alt": "The flag of Germany is composed of three equal horizontal bands of black, red and gold."
+                          },
+                          "coatOfArms": {
+                            "png": "https://mainfacts.com/media/images/coats_of_arms/de.png",
+                            "svg": "https://mainfacts.com/media/images/coats_of_arms/de.svg"
+                          },
+                          "startOfWeek": "monday",
+                          "capitalInfo": {
+                            "latlng": [
+                              52.52,
+                              13.41
+                            ]
+                          },
+                          "postalCode": {
+                            "format": "#####",
+                            "regex": "^(\\d{5})$"
+                          }
+                        },
+                        {
+                          "name": {
+                            "common": "Vatican City",
+                            "official": "Vatican City State",
+                            "native": {
+                              "ita": {
+                                "official": "Stato della Città del Vaticano",
+                                "common": "Vaticano"
+                              },
+                              "lat": {
+                                "official": "Status Civitatis Vaticanae",
+                                "common": "Vaticana"
+                              }
+                            }
+                          },
+                          "tld": [
+                            ".va"
+                          ],
+                          "cca2": "VA",
+                          "ccn3": "336",
+                          "cca3": "VAT",
+                          "independent": true,
+                          "status": "officially-assigned",
+                          "unMember": false,
+                          "currencies": {
+                            "EUR": {
+                              "name": "Euro",
+                              "symbol": "€"
+                            }
+                          },
+                          "idd": {
+                            "root": "+3",
+                            "suffixes": [
+                              "906698",
+                              "79"
+                            ]
+                          },
+                          "capital": [
+                            "Vatican City"
+                          ],
+                          "altSpellings": [
+                            "VA",
+                            "Holy See",
+                            "Vatican",
+                            "Vatican City State",
+                            "Stato della Città del Vaticano"
+                          ],
+                          "region": "Europe",
+                          "subregion": "Southern Europe",
+                          "languages": {
+                            "ita": "Italian",
+                            "lat": "Latin"
+                          },
+                          "translations": {
+                            "ara": {
+                              "official": "دولة مدينة الفاتيكان",
+                              "common": "مدينة الفاتيكان"
+                            },
+                            "bre": {
+                              "official": "Stad Vatikan",
+                              "common": "Vatikan"
+                            },
+                            "ces": {
+                              "official": "Městský stát Vatikán",
+                              "common": "Vatikán"
+                            },
+                            "cym": {
+                              "official": "Vatican City State",
+                              "common": "Vatican City"
+                            },
+                            "deu": {
+                              "official": "Staat Vatikanstadt",
+                              "common": "Vatikanstadt"
+                            },
+                            "est": {
+                              "official": "Vatikani Linnriik",
+                              "common": "Vatikan"
+                            },
+                            "fin": {
+                              "official": "Vatikaanin kaupunkivaltio",
+                              "common": "Vatikaani"
+                            },
+                            "fra": {
+                              "official": "Cité du Vatican",
+                              "common": "Cité du Vatican"
+                            },
+                            "hrv": {
+                              "official": "Vatikanska država",
+                              "common": "Vatikan"
+                            },
+                            "hun": {
+                              "official": "Vatikán Állam",
+                              "common": "Vatikán"
+                            },
+                            "ita": {
+                              "official": "Stato della Città del Vaticano",
+                              "common": "Vaticano"
+                            },
+                            "jpn": {
+                              "official": "バチカン市国",
+                              "common": "バチカン"
+                            },
+                            "kor": {
+                              "official": "바티칸 시국",
+                              "common": "바티칸"
+                            },
+                            "nld": {
+                              "official": "Vaticaanstad",
+                              "common": "Vaticaanstad"
+                            },
+                            "per": {
+                              "official": "دولت شهر واتیکان",
+                              "common": "واتیکان"
+                            },
+                            "pol": {
+                              "official": "Państwo Watykańskie",
+                              "common": "Watykan"
+                            },
+                            "por": {
+                              "official": "Cidade do Vaticano",
+                              "common": "Vaticano"
+                            },
+                            "rus": {
+                              "official": "Город-государство Ватикан",
+                              "common": "Ватикан"
+                            },
+                            "slk": {
+                              "official": "Vatikánsky mestský štát",
+                              "common": "Vatikán"
+                            },
+                            "spa": {
+                              "official": "Ciudad del Vaticano",
+                              "common": "Ciudad del Vaticano"
+                            },
+                            "swe": {
+                              "official": "Vatikanstaten",
+                              "common": "Vatikanstaten"
+                            },
+                            "urd": {
+                              "official": "ویٹیکن سٹی",
+                              "common": "ویٹیکن"
+                            },
+                            "zho": {
+                              "official": "梵蒂冈城国",
+                              "common": "梵蒂冈"
+                            }
+                          },
+                          "latlng": [
+                            41.9,
+                            12.45
+                          ],
+                          "landlocked": true,
+                          "borders": [
+                            "ITA"
+                          ],
+                          "area": 0.49,
+                          "demonyms": {
+                            "eng": {
+                              "f": "Vatican",
+                              "m": "Vatican"
+                            },
+                            "fra": {
+                              "f": "Vaticane",
+                              "m": "Vatican"
+                            }
+                          },
+                          "flag": "🇻🇦",
+                          "maps": {
+                            "googleMaps": "https://goo.gl/maps/DTKvw5Bd1QZaDZmE9",
+                            "openStreetMaps": "https://www.openstreetmap.org/relation/36989"
+                          },
+                          "population": 451,
+                          "car": {
+                            "signs": [
+                              "V"
+                            ],
+                            "side": "right"
+                          },
+                          "timezones": [
+                            "UTC+01:00"
+                          ],
+                          "continents": [
+                            "Europe"
+                          ],
+                          "flags": {
+                            "png": "https://flagcdn.com/w320/va.png",
+                            "svg": "https://flagcdn.com/va.svg",
+                            "alt": "The flag of Vatican City is square shaped. It is composed of two equal vertical bands of yellow and white."
+                          },
+                          "coatOfArms": {
+                            "png": "https://mainfacts.com/media/images/coats_of_arms/va.png",
+                            "svg": "https://mainfacts.com/media/images/coats_of_arms/va.svg"
+                          },
+                          "startOfWeek": "monday",
+                          "capitalInfo": {
+                            "latlng": [
+                              41.9,
+                              12.45
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alpha/{alphacode}": {
+      "get": {
+        "operationId": "v1Alphacode",
+        "parameters": [
+          {
+            "name": "alphacode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": {
+                      "name": "United States",
+                      "alpha2Code": "US",
+                      "alpha3Code": "USA",
+                      "capital": "Washington, D.C.",
+                      "region": "Americas",
+                      "subregion": "Northern America",
+                      "population": 323947000,
+                      "latlng": [
+                        40.0,
+                        -100.0
+                      ],
+                      "demonym": "American",
+                      "area": 9629091.0,
+                      "gini": 48.0,
+                      "timezones": [
+                        "UTC-12:00",
+                        "UTC-11:00",
+                        "UTC-10:00",
+                        "UTC-09:00",
+                        "UTC-08:00",
+                        "UTC-07:00",
+                        "UTC-06:00",
+                        "UTC-05:00",
+                        "UTC-04:00",
+                        "UTC+10:00",
+                        "UTC+12:00"
+                      ],
+                      "borders": [
+                        "CA",
+                        "MX"
+                      ],
+                      "nativeName": "United States",
+                      "numericCode": "840",
+                      "currencies": [
+                        {
+                          "code": "USD",
+                          "name": "United States dollar",
+                          "symbol": "$"
+                        }
+                      ],
+                      "languages": [
+                        {
+                          "iso639_1": "en",
+                          "iso639_2": "eng",
+                          "name": "English",
+                          "nativeName": "English"
+                        }
+                      ],
+                      "translations": {
+                        "de": "Vereinigte Staaten von Amerika",
+                        "es": "Estados Unidos",
+                        "fr": "États-Unis",
+                        "ja": "アメリカ合衆国",
+                        "it": "Stati Uniti D'America",
+                        "br": "Estados Unidos",
+                        "pt": "Estados Unidos",
+                        "nl": "Verenigde Staten",
+                        "hr": "Sjedinjene Američke Države",
+                        "fa": "ایالات متحده آمریکا"
+                      },
+                      "flag": "https://restcountries.com/data/usa.svg",
+                      "regionalBlocs": [
+                        {
+                          "acronym": "NAFTA",
+                          "name": "North American Free Trade Agreement",
+                          "otherAcronyms": [],
+                          "otherNames": [
+                            "Tratado de Libre Comercio de América del Norte",
+                            "Accord de Libre-échange Nord-Américain"
+                          ]
+                        }
+                      ],
+                      "cioc": "USA"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "message": "Bad Request",
+                      "error": "Invalid alpha code format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "error": "Country not found for alpha code"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "alphacode": "US"
+            },
+            {
+              "_name": "edge_case",
+              "alphacode": "GB"
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "alphacode": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "alphacode": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "alphacode": null
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "alphacode": true
+            },
+            {
+              "_name": "boundary_violation",
+              "alphacode": "XYZ"
+            },
+            {
+              "_name": "null_or_missing",
+              "alphacode": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/alpha": {
+      "get": {
+        "operationId": "v1Alphacodes",
+        "parameters": [
+          {
+            "name": "codes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US,CA,MX"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "United States",
+                        "alpha2Code": "US",
+                        "alpha3Code": "USA",
+                        "capital": "Washington, D.C.",
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "population": 323947000
+                      },
+                      {
+                        "name": "Canada",
+                        "alpha2Code": "CA",
+                        "alpha3Code": "CAN",
+                        "capital": "Ottawa",
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "population": 36155487
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "message": "Bad Request",
+                      "details": "Invalid query parameter format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "details": "No countries found for provided codes"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "details": "An unexpected error occurred while processing the request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "codes": "US,CA,MX"
+            },
+            {
+              "_name": "edge_case",
+              "codes": "AD"
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "codes": "123"
+            },
+            {
+              "_name": "boundary_violation",
+              "codes": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "codes": null
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "codes": "true"
+            },
+            {
+              "_name": "boundary_violation",
+              "codes": "XX,YY,ZZ"
+            },
+            {
+              "_name": "null_or_missing",
+              "codes": ""
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "codes": [
+                "US",
+                "CA"
+              ]
+            },
+            {
+              "_name": "boundary_violation",
+              "codes": "US|CA|MX"
+            },
+            {
+              "_name": "null_or_missing",
+              "codes": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/currency/{currency}": {
+      "get": {
+        "operationId": "v1Currency",
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "USD"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "United States",
+                        "topLevelDomain": [
+                          ".us"
+                        ],
+                        "alpha2Code": "US",
+                        "alpha3Code": "USA",
+                        "callingCodes": [
+                          "1"
+                        ],
+                        "capital": "Washington, D.C.",
+                        "altSpellings": [
+                          "US",
+                          "USA",
+                          "United States of America"
+                        ],
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "population": 323947000,
+                        "latlng": [
+                          38.0,
+                          -97.0
+                        ],
+                        "demonym": "American",
+                        "area": 9629091.0,
+                        "gini": 48.0,
+                        "timezones": [
+                          "UTC-12:00",
+                          "UTC-11:00",
+                          "UTC-10:00",
+                          "UTC-09:00",
+                          "UTC-08:00",
+                          "UTC-07:00",
+                          "UTC-06:00",
+                          "UTC-05:00",
+                          "UTC-04:00",
+                          "UTC+10:00",
+                          "UTC+12:00"
+                        ],
+                        "borders": [
+                          "CA",
+                          "MX"
+                        ],
+                        "nativeName": "United States",
+                        "numericCode": "840",
+                        "currencies": [
+                          {
+                            "code": "USD",
+                            "name": "United States dollar",
+                            "symbol": "$"
+                          }
+                        ],
+                        "languages": [
+                          {
+                            "iso639_1": "en",
+                            "iso639_2": "eng",
+                            "name": "English",
+                            "nativeName": "English"
+                          }
+                        ],
+                        "translations": {
+                          "br": "Estados Unidos",
+                          "pt": "Estados Unidos",
+                          "nl": "Verenigde Staten",
+                          "hr": "Sjedinjene Američke Države",
+                          "fa": "ایالات متحده آمریکا",
+                          "de": "Vereinigte Staaten von Amerika",
+                          "es": "Estados Unidos",
+                          "fr": "États-Unis",
+                          "ja": "アメリカ合衆国",
+                          "it": "Stati Uniti D'America",
+                          "hu": "Amerikai Egyesült Államok"
+                        },
+                        "flag": "https://restcountries.eu/data/usa.svg",
+                        "regionalBlocs": [
+                          {
+                            "acronym": "NAFTA",
+                            "name": "North American Free Trade Agreement",
+                            "otherAcronyms": [],
+                            "otherNames": [
+                              "Tratado de Libre Comercio de América del Norte",
+                              "Accord de Libre-échange Nord-Américain"
+                            ]
+                          }
+                        ],
+                        "cioc": "USA"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "message": "Bad Request",
+                      "error": "Invalid currency parameter"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "error": "Currency not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "error": "An unexpected error occurred"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "currency": "USD"
+            },
+            {
+              "_name": "edge_case",
+              "currency": "XOF"
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "currency": 123
+            },
+            {
+              "_name": "null_or_missing",
+              "currency": null
+            },
+            {
+              "_name": "empty_string",
+              "currency": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_currency_code",
+              "currency": "XYZ"
+            },
+            {
+              "_name": "numeric_string",
+              "currency": "123"
+            },
+            {
+              "_name": "special_characters",
+              "currency": "@#$"
+            }
+          ],
+          "500": [
+            {
+              "_name": "internal_error_trigger",
+              "currency": "EUR"
+            },
+            {
+              "_name": "long_invalid_code",
+              "currency": "INVALIDCURRENCYCODE"
+            },
+            {
+              "_name": "mixed_case_invalid",
+              "currency": "XyZ"
+            }
+          ]
+        }
+      }
+    },
+    "/v1/name/{name}": {
+      "get": {
+        "operationId": "v1Name",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "France"
+          },
+          {
+            "name": "fullText",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "example": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "France",
+                        "topLevelDomain": [
+                          ".fr"
+                        ],
+                        "alpha2Code": "FR",
+                        "alpha3Code": "FRA",
+                        "callingCodes": [
+                          "33"
+                        ],
+                        "capital": "Paris",
+                        "altSpellings": [
+                          "FR",
+                          "French Republic",
+                          "République française"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "population": 65273511,
+                        "latlng": [
+                          46.0,
+                          2.0
+                        ],
+                        "demonym": "French",
+                        "area": 551695.0,
+                        "gini": 32.7,
+                        "timezones": [
+                          "UTC-10:00",
+                          "UTC-09:30",
+                          "UTC-09:00",
+                          "UTC-08:00",
+                          "UTC-04:00",
+                          "UTC-03:00",
+                          "UTC+01:00",
+                          "UTC+02:00",
+                          "UTC+03:00",
+                          "UTC+04:00",
+                          "UTC+05:00",
+                          "UTC+10:00",
+                          "UTC+11:00",
+                          "UTC+12:00"
+                        ],
+                        "borders": [
+                          "AND",
+                          "BEL",
+                          "DEU",
+                          "ITA",
+                          "LUX",
+                          "MCO",
+                          "ESP",
+                          "CHE"
+                        ],
+                        "nativeName": "France",
+                        "numericCode": "250",
+                        "currencies": [
+                          {
+                            "code": "EUR",
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        ],
+                        "languages": [
+                          {
+                            "iso639_1": "fr",
+                            "iso639_2": "fra",
+                            "name": "French",
+                            "nativeName": "français"
+                          }
+                        ],
+                        "translations": {
+                          "de": "Frankreich",
+                          "es": "Francia",
+                          "fr": "France",
+                          "ja": "フランス",
+                          "it": "Francia",
+                          "br": "França",
+                          "pt": "França",
+                          "nl": "Frankrijk",
+                          "hr": "Francuska",
+                          "fa": "فرانسه"
+                        },
+                        "flag": "https://restcountries.eu/data/fra.svg",
+                        "regionalBlocs": [
+                          {
+                            "acronym": "EU",
+                            "name": "European Union",
+                            "otherAcronyms": [],
+                            "otherNames": []
+                          }
+                        ],
+                        "cioc": "FRA"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "name": "France",
+              "fullText": false
+            },
+            {
+              "_name": "edge_case",
+              "name": "United States of America",
+              "fullText": true
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "name": 123,
+              "fullText": false
+            },
+            {
+              "_name": "boundary_violation",
+              "name": "",
+              "fullText": true
+            },
+            {
+              "_name": "null_or_missing",
+              "name": null,
+              "fullText": false
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "name": true,
+              "fullText": "yes"
+            },
+            {
+              "_name": "boundary_violation",
+              "name": "A",
+              "fullText": 123
+            },
+            {
+              "_name": "null_or_missing",
+              "name": "Germany",
+              "fullText": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/callingcode/{callingcode}": {
+      "get": {
+        "operationId": "v1Callingcode",
+        "parameters": [
+          {
+            "name": "callingcode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": {
+                          "common": "United States",
+                          "official": "United States of America"
+                        },
+                        "tld": [
+                          ".us"
+                        ],
+                        "cca2": "US",
+                        "ccn3": "840",
+                        "cca3": "USA",
+                        "cioc": "USA",
+                        "independent": true,
+                        "status": "officially-assigned",
+                        "unMember": true,
+                        "currencies": {
+                          "USD": {
+                            "name": "United States dollar",
+                            "symbol": "$"
+                          }
+                        },
+                        "idd": {
+                          "root": "+1",
+                          "suffixes": [
+                            "201",
+                            "202",
+                            "203",
+                            "205",
+                            "206",
+                            "207",
+                            "208",
+                            "209",
+                            "210",
+                            "212",
+                            "213",
+                            "214",
+                            "215",
+                            "216",
+                            "217",
+                            "218",
+                            "219",
+                            "224",
+                            "225",
+                            "226",
+                            "227",
+                            "228",
+                            "229",
+                            "231",
+                            "234",
+                            "239",
+                            "240",
+                            "248",
+                            "251",
+                            "252",
+                            "253",
+                            "254",
+                            "256",
+                            "260",
+                            "262",
+                            "267",
+                            "269",
+                            "270",
+                            "276",
+                            "281",
+                            "301",
+                            "302",
+                            "303",
+                            "304",
+                            "305",
+                            "307",
+                            "308",
+                            "309",
+                            "310",
+                            "312",
+                            "313",
+                            "314",
+                            "315",
+                            "316",
+                            "317",
+                            "318",
+                            "319",
+                            "320",
+                            "321",
+                            "323",
+                            "325",
+                            "330",
+                            "331",
+                            "334",
+                            "336",
+                            "337",
+                            "339",
+                            "347",
+                            "351",
+                            "352",
+                            "360",
+                            "361",
+                            "386",
+                            "401",
+                            "402",
+                            "404",
+                            "405",
+                            "406",
+                            "407",
+                            "408",
+                            "409",
+                            "410",
+                            "412",
+                            "413",
+                            "414",
+                            "415",
+                            "417",
+                            "419",
+                            "423",
+                            "424",
+                            "425",
+                            "430",
+                            "432",
+                            "434",
+                            "435",
+                            "440",
+                            "443",
+                            "469",
+                            "470",
+                            "475",
+                            "478",
+                            "479",
+                            "480",
+                            "484",
+                            "501",
+                            "502",
+                            "503",
+                            "504",
+                            "505",
+                            "507",
+                            "508",
+                            "509",
+                            "510",
+                            "512",
+                            "513",
+                            "515",
+                            "516",
+                            "517",
+                            "518",
+                            "520",
+                            "530",
+                            "540",
+                            "541",
+                            "551",
+                            "559",
+                            "561",
+                            "562",
+                            "563",
+                            "567",
+                            "570",
+                            "571",
+                            "573",
+                            "574",
+                            "575",
+                            "580",
+                            "585",
+                            "586",
+                            "601",
+                            "602",
+                            "603",
+                            "605",
+                            "606",
+                            "607",
+                            "608",
+                            "609",
+                            "610",
+                            "612",
+                            "614",
+                            "615",
+                            "616",
+                            "617",
+                            "618",
+                            "619",
+                            "620",
+                            "623",
+                            "626",
+                            "630",
+                            "631",
+                            "636",
+                            "641",
+                            "646",
+                            "650",
+                            "651",
+                            "660",
+                            "661",
+                            "662",
+                            "667",
+                            "678",
+                            "682",
+                            "701",
+                            "702",
+                            "703",
+                            "704",
+                            "706",
+                            "707",
+                            "708",
+                            "712",
+                            "713",
+                            "714",
+                            "715",
+                            "716",
+                            "717",
+                            "718",
+                            "719",
+                            "720",
+                            "724",
+                            "727",
+                            "731",
+                            "732",
+                            "734",
+                            "737",
+                            "740",
+                            "747",
+                            "754",
+                            "757",
+                            "760",
+                            "763",
+                            "765",
+                            "770",
+                            "772",
+                            "773",
+                            "774",
+                            "775",
+                            "781",
+                            "785",
+                            "786",
+                            "801",
+                            "802",
+                            "803",
+                            "804",
+                            "805",
+                            "806",
+                            "808",
+                            "810",
+                            "812",
+                            "813",
+                            "814",
+                            "815",
+                            "816",
+                            "817",
+                            "818",
+                            "828",
+                            "830",
+                            "831",
+                            "832",
+                            "843",
+                            "845",
+                            "847",
+                            "848",
+                            "850",
+                            "856",
+                            "857",
+                            "858",
+                            "859",
+                            "860",
+                            "862",
+                            "863",
+                            "864",
+                            "865",
+                            "870",
+                            "872",
+                            "878",
+                            "901",
+                            "903",
+                            "904",
+                            "906",
+                            "907",
+                            "908",
+                            "909",
+                            "910",
+                            "912",
+                            "913",
+                            "914",
+                            "915",
+                            "916",
+                            "917",
+                            "918",
+                            "919",
+                            "920",
+                            "925",
+                            "928",
+                            "929",
+                            "931",
+                            "936",
+                            "937",
+                            "940",
+                            "941",
+                            "947",
+                            "949",
+                            "951",
+                            "952",
+                            "954",
+                            "956",
+                            "959",
+                            "970",
+                            "971",
+                            "972",
+                            "973",
+                            "978",
+                            "979",
+                            "980",
+                            "984",
+                            "985",
+                            "989"
+                          ]
+                        },
+                        "capital": [
+                          "Washington, D.C."
+                        ],
+                        "altSpellings": [
+                          "US",
+                          "USA",
+                          "United States of America"
+                        ],
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "languages": {
+                          "eng": "English"
+                        },
+                        "translations": {
+                          "ara": {
+                            "official": "الولايات المتحدة الامريكية",
+                            "common": "الولايات المتحدة"
+                          },
+                          "bre": {
+                            "official": "Stadoù-Unanet Amerika",
+                            "common": "Stadoù-Unanet"
+                          },
+                          "ces": {
+                            "official": "Spojené státy americké",
+                            "common": "Spojené státy"
+                          },
+                          "cym": {
+                            "official": "United States of America",
+                            "common": "United States"
+                          },
+                          "deu": {
+                            "official": "Vereinigte Staaten von Amerika",
+                            "common": "Vereinigte Staaten"
+                          },
+                          "est": {
+                            "official": "Ameerika Ühendriigid",
+                            "common": "Ameerika Ühendriigid"
+                          },
+                          "fin": {
+                            "official": "Amerikan yhdysvallat",
+                            "common": "Yhdysvallat"
+                          },
+                          "fra": {
+                            "official": "Les états-unis d'Amérique",
+                            "common": "États-Unis"
+                          },
+                          "hrv": {
+                            "official": "Sjedinjene Američke Države",
+                            "common": "Sjedinjene Američke Države"
+                          },
+                          "hun": {
+                            "official": "Amerikai Egyesült Államok",
+                            "common": "Amerikai Egyesült Államok"
+                          },
+                          "ita": {
+                            "official": "Stati Uniti d'America",
+                            "common": "Stati Uniti d'America"
+                          },
+                          "jpn": {
+                            "official": "アメリカ合衆国",
+                            "common": "アメリカ合衆国"
+                          },
+                          "kor": {
+                            "official": "아메리카 합중국",
+                            "common": "미국"
+                          },
+                          "nld": {
+                            "official": "Verenigde Staten van Amerika",
+                            "common": "Verenigde Staten"
+                          },
+                          "per": {
+                            "official": "ایالات متحده آمریکا",
+                            "common": "ایالات متحده آمریکا"
+                          },
+                          "pol": {
+                            "official": "Stany Zjednoczone Ameryki",
+                            "common": "Stany Zjednoczone"
+                          },
+                          "por": {
+                            "official": "Estados Unidos da América",
+                            "common": "Estados Unidos"
+                          },
+                          "rus": {
+                            "official": "Соединённые Штаты Америки",
+                            "common": "Соединённые Штаты"
+                          },
+                          "slk": {
+                            "official": "Spojené štáty americké",
+                            "common": "Spojené štáty"
+                          },
+                          "spa": {
+                            "official": "Estados Unidos de América",
+                            "common": "Estados Unidos"
+                          },
+                          "swe": {
+                            "official": "Amerikas förenta stater",
+                            "common": "USA"
+                          },
+                          "tur": {
+                            "official": "Amerika Birleşik Devletleri",
+                            "common": "Amerika Birleşik Devletleri"
+                          },
+                          "urd": {
+                            "official": "ریاستہائے متحدہ امریکا",
+                            "common": "ریاستہائے متحدہ"
+                          },
+                          "zho": {
+                            "official": "美利坚合众国",
+                            "common": "美国"
+                          }
+                        },
+                        "latlng": [
+                          38.0,
+                          -97.0
+                        ],
+                        "landlocked": false,
+                        "borders": [
+                          "CA",
+                          "MX"
+                        ],
+                        "area": 9372610.0,
+                        "demonyms": {
+                          "eng": {
+                            "f": "American",
+                            "m": "American"
+                          },
+                          "fra": {
+                            "f": "Américaine",
+                            "m": "Américain"
+                          }
+                        },
+                        "flag": "🇺🇸",
+                        "maps": {
+                          "googleMaps": "https://goo.gl/maps/e8M2468YvBS5k6xP7",
+                          "openStreetMaps": "https://www.openstreetmap.org/relation/148838#map=2/20.6/-85.2"
+                        },
+                        "population": 329484123,
+                        "gini": {
+                          "2018": 41.4
+                        },
+                        "fifa": "USA",
+                        "car": {
+                          "signs": [
+                            "USA"
+                          ],
+                          "side": "right"
+                        },
+                        "timezones": [
+                          "UTC-12:00",
+                          "UTC-11:00",
+                          "UTC-10:00",
+                          "UTC-09:00",
+                          "UTC-08:00",
+                          "UTC-07:00",
+                          "UTC-06:00",
+                          "UTC-05:00",
+                          "UTC-04:00",
+                          "UTC+10:00",
+                          "UTC+12:00"
+                        ],
+                        "continents": [
+                          "North America"
+                        ],
+                        "flags": {
+                          "png": "https://flagcdn.com/w320/us.png",
+                          "svg": "https://flagcdn.com/us.svg",
+                          "alt": "The flag of the United States of America is composed of thirteen equal horizontal bands of red alternating with white. A blue rectangle, bearing fifty small five-pointed white stars arranged in nine rows where rows of six stars alternate with rows of five stars, is superimposed in the canton."
+                        },
+                        "coatOfArms": {
+                          "png": "https://mainfacts.com/media/images/coats_of_arms/us.png",
+                          "svg": "https://mainfacts.com/media/images/coats_of_arms/us.svg"
+                        },
+                        "startOfWeek": "sunday",
+                        "capitalInfo": {
+                          "latlng": [
+                            38.89,
+                            -77.05
+                          ]
+                        },
+                        "postalCode": {
+                          "format": "#####-####",
+                          "regex": "^\\d{5}(-\\d{4})?$"
+                        }
+                      },
+                      {
+                        "name": {
+                          "common": "Canada",
+                          "official": "Canada"
+                        },
+                        "tld": [
+                          ".ca"
+                        ],
+                        "cca2": "CA",
+                        "ccn3": "124",
+                        "cca3": "CAN",
+                        "cioc": "CAN",
+                        "independent": true,
+                        "status": "officially-assigned",
+                        "unMember": true,
+                        "currencies": {
+                          "CAD": {
+                            "name": "Canadian dollar",
+                            "symbol": "$"
+                          }
+                        },
+                        "idd": {
+                          "root": "+1",
+                          "suffixes": [
+                            "204",
+                            "226",
+                            "236",
+                            "249",
+                            "250",
+                            "289",
+                            "306",
+                            "343",
+                            "365",
+                            "387",
+                            "403",
+                            "416",
+                            "418",
+                            "431",
+                            "437",
+                            "438",
+                            "450",
+                            "506",
+                            "514",
+                            "519",
+                            "548",
+                            "579",
+                            "581",
+                            "587",
+                            "604",
+                            "613",
+                            "639",
+                            "647",
+                            "672",
+                            "705",
+                            "709",
+                            "742",
+                            "778",
+                            "780",
+                            "782",
+                            "807",
+                            "819",
+                            "825",
+                            "867",
+                            "873",
+                            "902",
+                            "905"
+                          ]
+                        },
+                        "capital": [
+                          "Ottawa"
+                        ],
+                        "altSpellings": [
+                          "CA"
+                        ],
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "languages": {
+                          "eng": "English",
+                          "fra": "French"
+                        },
+                        "translations": {
+                          "ara": {
+                            "official": "كندا",
+                            "common": "كندا"
+                          },
+                          "bre": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "ces": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "cym": {
+                            "official": "Canada",
+                            "common": "Canada"
+                          },
+                          "deu": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "est": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "fin": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "fra": {
+                            "official": "Canada",
+                            "common": "Canada"
+                          },
+                          "hrv": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "hun": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "ita": {
+                            "official": "Canada",
+                            "common": "Canada"
+                          },
+                          "jpn": {
+                            "official": "カナダ",
+                            "common": "カナダ"
+                          },
+                          "kor": {
+                            "official": "캐나다",
+                            "common": "캐나다"
+                          },
+                          "nld": {
+                            "official": "Canada",
+                            "common": "Canada"
+                          },
+                          "per": {
+                            "official": "کانادا",
+                            "common": "کانادا"
+                          },
+                          "pol": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "por": {
+                            "official": "Canadá",
+                            "common": "Canadá"
+                          },
+                          "rus": {
+                            "official": "Канада",
+                            "common": "Канада"
+                          },
+                          "slk": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "spa": {
+                            "official": "Canadá",
+                            "common": "Canadá"
+                          },
+                          "swe": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "tur": {
+                            "official": "Kanada",
+                            "common": "Kanada"
+                          },
+                          "urd": {
+                            "official": "کینیڈا",
+                            "common": "کینیڈا"
+                          },
+                          "zho": {
+                            "official": "加拿大",
+                            "common": "加拿大"
+                          }
+                        },
+                        "latlng": [
+                          60.0,
+                          -95.0
+                        ],
+                        "landlocked": false,
+                        "borders": [
+                          "US"
+                        ],
+                        "area": 9984670.0,
+                        "demonyms": {
+                          "eng": {
+                            "f": "Canadian",
+                            "m": "Canadian"
+                          },
+                          "fra": {
+                            "f": "Canadienne",
+                            "m": "Canadien"
+                          }
+                        },
+                        "flag": "🇨🇦",
+                        "maps": {
+                          "googleMaps": "https://goo.gl/maps/jmEVLugreeqiZXxbA",
+                          "openStreetMaps": "https://www.openstreetmap.org/relation/1421065"
+                        },
+                        "population": 38005238,
+                        "gini": {
+                          "2017": 33.3
+                        },
+                        "fifa": "CAN",
+                        "car": {
+                          "signs": [
+                            "CDN"
+                          ],
+                          "side": "right"
+                        },
+                        "timezones": [
+                          "UTC-08:00",
+                          "UTC-07:00",
+                          "UTC-06:00",
+                          "UTC-05:00",
+                          "UTC-04:00",
+                          "UTC-03:30",
+                          "UTC-02:30"
+                        ],
+                        "continents": [
+                          "North America"
+                        ],
+                        "flags": {
+                          "png": "https://flagcdn.com/w320/ca.png",
+                          "svg": "https://flagcdn.com/ca.svg",
+                          "alt": "The flag of Canada is composed of a red vertical band on the hoist and fly sides and a central white square that is twice the width of the bands. A large eleven-pointed red maple leaf is centered in the white square."
+                        },
+                        "coatOfArms": {
+                          "png": "https://mainfacts.com/media/images/coats_of_arms/ca.png",
+                          "svg": "https://mainfacts.com/media/images/coats_of_arms/ca.svg"
+                        },
+                        "startOfWeek": "sunday",
+                        "capitalInfo": {
+                          "latlng": [
+                            45.42,
+                            -75.7
+                          ]
+                        },
+                        "postalCode": {
+                          "format": "@#@ #@#",
+                          "regex": "^([ABCEGHJKLMNPRSTVXY]\\d[ABCEGHJKLMNPRSTVWXYZ])\\s?(\\d[ABCEGHJKLMNPRSTVWXYZ]\\d)$"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "error": {
+                        "status": 404,
+                        "message": "Not Found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "error": {
+                        "status": 500,
+                        "message": "Internal Server Error"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "callingcode": "1"
+            },
+            {
+              "_name": "edge_case",
+              "callingcode": "44"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "callingcode": "abc"
+            },
+            {
+              "_name": "boundary_violation",
+              "callingcode": "99999"
+            },
+            {
+              "_name": "null_or_missing",
+              "callingcode": null
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "callingcode": true
+            },
+            {
+              "_name": "boundary_violation",
+              "callingcode": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "callingcode": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/capital/{capital}": {
+      "get": {
+        "operationId": "v1Capital",
+        "parameters": [
+          {
+            "name": "capital",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "London"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": {
+                          "common": "United Kingdom",
+                          "official": "United Kingdom of Great Britain and Northern Ireland",
+                          "nativeName": {
+                            "eng": {
+                              "official": "United Kingdom of Great Britain and Northern Ireland",
+                              "common": "United Kingdom"
+                            }
+                          }
+                        },
+                        "tld": [
+                          ".uk"
+                        ],
+                        "cca2": "GB",
+                        "ccn3": "826",
+                        "cca3": "GBR",
+                        "cioc": "GBR",
+                        "independent": true,
+                        "status": "officially-assigned",
+                        "unMember": true,
+                        "currencies": {
+                          "GBP": {
+                            "name": "British pound",
+                            "symbol": "£"
+                          }
+                        },
+                        "idd": {
+                          "root": "+4",
+                          "suffixes": [
+                            "4"
+                          ]
+                        },
+                        "capital": [
+                          "London"
+                        ],
+                        "altSpellings": [
+                          "GB",
+                          "UK",
+                          "Great Britain"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Northern Europe",
+                        "languages": {
+                          "eng": "English"
+                        },
+                        "translations": {
+                          "ara": {
+                            "official": "المملكة المتحدة لبريطانيا العظمى وايرلندا الشمالية",
+                            "common": "المملكة المتحدة"
+                          },
+                          "bre": {
+                            "official": "Rouantelezh-Unanet Breizh-Veur ha Norzhiwerzhon",
+                            "common": "Rouantelezh-Unanet"
+                          },
+                          "ces": {
+                            "official": "Spojené království Velké Británie a Severního Irska",
+                            "common": "Spojené království"
+                          },
+                          "cym": {
+                            "official": "United Kingdom of Great Britain and Northern Ireland",
+                            "common": "United Kingdom"
+                          },
+                          "deu": {
+                            "official": "Vereinigtes Königreich Großbritannien und Nordirland",
+                            "common": "Vereinigtes Königreich"
+                          },
+                          "est": {
+                            "official": "Suurbritannia ja Põhja-Iiri Ühendkuningriik",
+                            "common": "Suurbritannia"
+                          },
+                          "fin": {
+                            "official": "Ison-Britannian ja Pohjois-Irlannin yhdistynyt kuningaskunta",
+                            "common": "Yhdistynyt kuningaskunta"
+                          },
+                          "fra": {
+                            "official": "Royaume-Uni de Grande-Bretagne et d'Irlande du Nord",
+                            "common": "Royaume-Uni"
+                          },
+                          "hrv": {
+                            "official": "Ujedinjeno Kraljevstvo Velike Britanije i Sjeverne Irske",
+                            "common": "Ujedinjeno Kraljevstvo"
+                          },
+                          "hun": {
+                            "official": "Nagy-Britannia és Észak-Írország Egyesült Királysága",
+                            "common": "Egyesült Királyság"
+                          },
+                          "ita": {
+                            "official": "Regno Unito di Gran Bretagna e Irlanda del Nord",
+                            "common": "Regno Unito"
+                          },
+                          "jpn": {
+                            "official": "グレートブリテン及び北アイルランド連合王国",
+                            "common": "イギリス"
+                          },
+                          "kor": {
+                            "official": "그레이트브리튼 북아일랜드 연합 왕국",
+                            "common": "영국"
+                          },
+                          "nld": {
+                            "official": "Verenigd Koninkrijk van Groot-Brittannië en Noord-Ierland",
+                            "common": "Verenigd Koninkrijk"
+                          },
+                          "per": {
+                            "official": "پادشاهی متحد بریتانیای کبیر و ایرلند شمالی",
+                            "common": "انگلستان"
+                          },
+                          "pol": {
+                            "official": "Zjednoczone Królestwo Wielkiej Brytanii i Irlandii Północnej",
+                            "common": "Zjednoczone Królestwo"
+                          },
+                          "por": {
+                            "official": "Reino Unido da Grã-Bretanha e Irlanda do Norte",
+                            "common": "Reino Unido"
+                          },
+                          "rus": {
+                            "official": "Соединённое Королевство Великобритании и Северной Ирландии",
+                            "common": "Великобритания"
+                          },
+                          "slk": {
+                            "official": "Spojené kráľovstvo Veľkej Británie a Severného Írska",
+                            "common": "Spojené kráľovstvo"
+                          },
+                          "spa": {
+                            "official": "Reino Unido de Gran Bretaña e Irlanda del Norte",
+                            "common": "Reino Unido"
+                          },
+                          "swe": {
+                            "official": "Förenade konungariket Storbritannien och Nordirland",
+                            "common": "Storbritannien"
+                          },
+                          "urd": {
+                            "official": "مملکتِ متحدہ برطانیہ عظمیٰ و شمالی آئرلینڈ",
+                            "common": "مملکتِ متحدہ"
+                          },
+                          "zho": {
+                            "official": "大不列颠及北爱尔兰联合王国",
+                            "common": "英国"
+                          }
+                        },
+                        "latlng": [
+                          54.0,
+                          -2.0
+                        ],
+                        "landlocked": false,
+                        "borders": [
+                          "IRL"
+                        ],
+                        "area": 242900.0,
+                        "demonyms": {
+                          "eng": {
+                            "f": "British",
+                            "m": "British"
+                          },
+                          "fra": {
+                            "f": "Britannique",
+                            "m": "Britannique"
+                          }
+                        },
+                        "flag": "🇬🇧",
+                        "maps": {
+                          "googleMaps": "https://goo.gl/maps/FoDtc3UKMkFsXAjHA",
+                          "openStreetMaps": "https://www.openstreetmap.org/relation/62149"
+                        },
+                        "population": 67215293,
+                        "gini": {
+                          "2017": 35.1
+                        },
+                        "fifa": "ENG",
+                        "car": {
+                          "signs": [
+                            "GB"
+                          ],
+                          "side": "left"
+                        },
+                        "timezones": [
+                          "UTC",
+                          "UTC+01:00"
+                        ],
+                        "continents": [
+                          "Europe"
+                        ],
+                        "flags": {
+                          "png": "https://flagcdn.com/w320/gb.png",
+                          "svg": "https://flagcdn.com/gb.svg"
+                        },
+                        "coatOfArms": {
+                          "png": "https://mainfacts.com/media/images/coats_of_arms/gb.png",
+                          "svg": "https://mainfacts.com/media/images/coats_of_arms/gb.svg"
+                        },
+                        "startOfWeek": "monday",
+                        "capitalInfo": {
+                          "latlng": [
+                            51.5,
+                            -0.12
+                          ]
+                        },
+                        "postalCode": {
+                          "format": "@# #@@",
+                          "regex": "^([A-Z]{1,2}[0-9][A-Z0-9]? [0-9][A-Z]{2})$"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "capital": "London"
+            },
+            {
+              "_name": "edge_case",
+              "capital": "A"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "capital": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "capital": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "capital": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/region/{region}": {
+      "get": {
+        "operationId": "v1Region",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Europe"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "topLevelDomain": [
+                          ".de"
+                        ],
+                        "alpha2Code": "DE",
+                        "alpha3Code": "DEU",
+                        "callingCodes": [
+                          "49"
+                        ],
+                        "capital": "Berlin",
+                        "altSpellings": [
+                          "DE",
+                          "Federal Republic of Germany",
+                          "Bundesrepublik Deutschland"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "population": 83240525,
+                        "latlng": [
+                          51.0,
+                          9.0
+                        ],
+                        "demonym": "German",
+                        "area": 357114.0,
+                        "gini": 31.9,
+                        "timezones": [
+                          "UTC+01:00"
+                        ],
+                        "borders": [
+                          "AUT",
+                          "BEL",
+                          "CZE",
+                          "DNK",
+                          "FRA",
+                          "LUX",
+                          "NLD",
+                          "POL",
+                          "CHE"
+                        ],
+                        "nativeName": "Deutschland",
+                        "numericCode": "276",
+                        "currencies": [
+                          {
+                            "code": "EUR",
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        ],
+                        "languages": [
+                          {
+                            "iso639_1": "de",
+                            "iso639_2": "deu",
+                            "name": "German",
+                            "nativeName": "Deutsch"
+                          }
+                        ],
+                        "translations": {
+                          "br": "Alemanha",
+                          "pt": "Alemanha",
+                          "nl": "Duitsland",
+                          "hr": "Njemačka",
+                          "fa": "آلمان",
+                          "de": "Deutschland",
+                          "es": "Alemania",
+                          "fr": "Allemagne",
+                          "ja": "ドイツ",
+                          "it": "Germania",
+                          "hu": "Németország"
+                        },
+                        "flag": "https://restcountries.eu/data/deu.svg",
+                        "regionalBlocs": [
+                          {
+                            "acronym": "EU",
+                            "name": "European Union",
+                            "otherAcronyms": [],
+                            "otherNames": []
+                          }
+                        ],
+                        "cioc": "GER"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "region": "Europe"
+            },
+            {
+              "_name": "edge_case",
+              "region": "africa"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "region": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "region": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "region": null
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "region": true
+            },
+            {
+              "_name": "boundary_violation",
+              "region": "NonExistentRegion"
+            },
+            {
+              "_name": "null_or_missing",
+              "region": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/subregion/{subregion}": {
+      "get": {
+        "operationId": "v1Subregion",
+        "parameters": [
+          {
+            "name": "subregion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Western Europe"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": {
+                          "common": "Germany",
+                          "official": "Federal Republic of Germany",
+                          "nativeName": {
+                            "deu": {
+                              "official": "Bundesrepublik Deutschland",
+                              "common": "Deutschland"
+                            }
+                          }
+                        },
+                        "tld": [
+                          ".de"
+                        ],
+                        "cca2": "DE",
+                        "ccn3": "276",
+                        "cca3": "DEU",
+                        "cioc": "GER",
+                        "independent": true,
+                        "status": "officially-assigned",
+                        "unMember": true,
+                        "currencies": {
+                          "EUR": {
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        },
+                        "idd": {
+                          "root": "+4",
+                          "suffixes": [
+                            "9"
+                          ]
+                        },
+                        "capital": [
+                          "Berlin"
+                        ],
+                        "altSpellings": [
+                          "DE",
+                          "Federal Republic of Germany",
+                          "Bundesrepublik Deutschland"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "languages": {
+                          "deu": "German"
+                        },
+                        "translations": {
+                          "ara": {
+                            "official": "جمهورية ألمانيا الاتحادية",
+                            "common": "ألمانيا"
+                          },
+                          "bre": {
+                            "official": "Republik Kevreadel Alamagn",
+                            "common": "Alamagn"
+                          },
+                          "ces": {
+                            "official": "Spolková republika Německo",
+                            "common": "Německo"
+                          },
+                          "cym": {
+                            "official": "Federal Republic of Germany",
+                            "common": "Germany"
+                          },
+                          "deu": {
+                            "official": "Bundesrepublik Deutschland",
+                            "common": "Deutschland"
+                          },
+                          "est": {
+                            "official": "Saksamaa Liitvabariik",
+                            "common": "Saksamaa"
+                          },
+                          "fin": {
+                            "official": "Saksan liittotasavalta",
+                            "common": "Saksa"
+                          },
+                          "fra": {
+                            "official": "République fédérale d'Allemagne",
+                            "common": "Allemagne"
+                          },
+                          "hrv": {
+                            "official": "Njemačka Federativna Republika",
+                            "common": "Njemačka"
+                          },
+                          "hun": {
+                            "official": "Német Szövetségi Köztársaság",
+                            "common": "Németország"
+                          },
+                          "ita": {
+                            "official": "Repubblica federale di Germania",
+                            "common": "Germania"
+                          },
+                          "jpn": {
+                            "official": "ドイツ連邦共和国",
+                            "common": "ドイツ"
+                          },
+                          "kor": {
+                            "official": "독일 연방 공화국",
+                            "common": "독일"
+                          },
+                          "nld": {
+                            "official": "Bondsrepubliek Duitsland",
+                            "common": "Duitsland"
+                          },
+                          "per": {
+                            "official": "جمهوری فدرال آلمان",
+                            "common": "آلمان"
+                          },
+                          "pol": {
+                            "official": "Republika Federalna Niemiec",
+                            "common": "Niemcy"
+                          },
+                          "por": {
+                            "official": "República Federal da Alemanha",
+                            "common": "Alemanha"
+                          },
+                          "rus": {
+                            "official": "Федеративная Республика Германия",
+                            "common": "Германия"
+                          },
+                          "slk": {
+                            "official": "Nemecká spolková republika",
+                            "common": "Nemecko"
+                          },
+                          "spa": {
+                            "official": "República Federal de Alemania",
+                            "common": "Alemania"
+                          },
+                          "swe": {
+                            "official": "Förbundsrepubliken Tyskland",
+                            "common": "Tyskland"
+                          },
+                          "tur": {
+                            "official": "Almanya Federal Cumhuriyeti",
+                            "common": "Almanya"
+                          },
+                          "urd": {
+                            "official": "وفاقی جمہوریہ جرمنی",
+                            "common": "جرمنی"
+                          },
+                          "zho": {
+                            "official": "德意志联邦共和国",
+                            "common": "德国"
+                          }
+                        },
+                        "latlng": [
+                          51.0,
+                          9.0
+                        ],
+                        "landlocked": false,
+                        "borders": [
+                          "AUT",
+                          "BEL",
+                          "CZE",
+                          "DNK",
+                          "FRA",
+                          "LUX",
+                          "NLD",
+                          "POL",
+                          "CHE"
+                        ],
+                        "area": 357114.0,
+                        "demonyms": {
+                          "eng": {
+                            "f": "German",
+                            "m": "German"
+                          },
+                          "fra": {
+                            "f": "Allemande",
+                            "m": "Allemand"
+                          }
+                        },
+                        "flag": "🇩🇪",
+                        "maps": {
+                          "googleMaps": "https://goo.gl/maps/mD9FBMq1nvXUBrkv6",
+                          "openStreetMaps": "https://www.openstreetmap.org/relation/51477"
+                        },
+                        "population": 83240525,
+                        "gini": {
+                          "2016": 31.9
+                        },
+                        "fifa": "GER",
+                        "car": {
+                          "signs": [
+                            "DY"
+                          ],
+                          "side": "right"
+                        },
+                        "timezones": [
+                          "UTC+01:00"
+                        ],
+                        "continents": [
+                          "Europe"
+                        ],
+                        "flags": {
+                          "png": "https://flagcdn.com/w320/de.png",
+                          "svg": "https://flagcdn.com/de.svg",
+                          "alt": "The flag of Germany is composed of three equal horizontal bands of black, red and gold."
+                        },
+                        "coatOfArms": {
+                          "png": "https://mainfacts.com/media/images/coats_of_arms/de.png",
+                          "svg": "https://mainfacts.com/media/images/coats_of_arms/de.svg"
+                        },
+                        "startOfWeek": "monday",
+                        "capitalInfo": {
+                          "latlng": [
+                            52.52,
+                            13.4
+                          ]
+                        },
+                        "postalCode": {
+                          "format": "#####",
+                          "regex": "^(\\d{5})$"
+                        }
+                      },
+                      {
+                        "name": {
+                          "common": "Austria",
+                          "official": "Republic of Austria",
+                          "nativeName": {
+                            "bar": {
+                              "official": "Republik Österreich",
+                              "common": "Österreich"
+                            }
+                          }
+                        },
+                        "tld": [
+                          ".at"
+                        ],
+                        "cca2": "AT",
+                        "ccn3": "040",
+                        "cca3": "AUT",
+                        "cioc": "AUT",
+                        "independent": true,
+                        "status": "officially-assigned",
+                        "unMember": true,
+                        "currencies": {
+                          "EUR": {
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        },
+                        "idd": {
+                          "root": "+4",
+                          "suffixes": [
+                            "3"
+                          ]
+                        },
+                        "capital": [
+                          "Vienna"
+                        ],
+                        "altSpellings": [
+                          "AT",
+                          "Osterreich",
+                          "Oesterreich"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "languages": {
+                          "bar": "Austro-Bavarian German"
+                        },
+                        "translations": {
+                          "ara": {
+                            "official": "جمهورية النمسا",
+                            "common": "النمسا"
+                          },
+                          "bre": {
+                            "official": "Republik Aostria",
+                            "common": "Aostria"
+                          },
+                          "ces": {
+                            "official": "Rakouská republika",
+                            "common": "Rakousko"
+                          },
+                          "cym": {
+                            "official": "Gweriniaeth Awstria",
+                            "common": "Awstria"
+                          },
+                          "deu": {
+                            "official": "Republik Österreich",
+                            "common": "Österreich"
+                          },
+                          "est": {
+                            "official": "Austria Vabariik",
+                            "common": "Austria"
+                          },
+                          "fin": {
+                            "official": "Itävallan tasavalta",
+                            "common": "Itävalta"
+                          },
+                          "fra": {
+                            "official": "République d'Autriche",
+                            "common": "Autriche"
+                          },
+                          "hrv": {
+                            "official": "Republika Austrija",
+                            "common": "Austrija"
+                          },
+                          "hun": {
+                            "official": "Ausztria",
+                            "common": "Ausztria"
+                          },
+                          "ita": {
+                            "official": "Repubblica d'Austria",
+                            "common": "Austria"
+                          },
+                          "jpn": {
+                            "official": "オーストリア共和国",
+                            "common": "オーストリア"
+                          },
+                          "kor": {
+                            "official": "오스트리아 공화국",
+                            "common": "오스트리아"
+                          },
+                          "nld": {
+                            "official": "Republiek Oostenrijk",
+                            "common": "Oostenrijk"
+                          },
+                          "per": {
+                            "official": "جمهوری اتریش",
+                            "common": "اتریش"
+                          },
+                          "pol": {
+                            "official": "Republika Austrii",
+                            "common": "Austria"
+                          },
+                          "por": {
+                            "official": "República da Áustria",
+                            "common": "Áustria"
+                          },
+                          "rus": {
+                            "official": "Австрийская Республика",
+                            "common": "Австрия"
+                          },
+                          "slk": {
+                            "official": "Rakúska republika",
+                            "common": "Rakúsko"
+                          },
+                          "spa": {
+                            "official": "República de Austria",
+                            "common": "Austria"
+                          },
+                          "swe": {
+                            "official": "Republiken Österrike",
+                            "common": "Österrike"
+                          },
+                          "tur": {
+                            "official": "Avusturya Cumhuriyeti",
+                            "common": "Avusturya"
+                          },
+                          "urd": {
+                            "official": "جمہوریہ آسٹریا",
+                            "common": "آسٹریا"
+                          },
+                          "zho": {
+                            "official": "奥地利共和国",
+                            "common": "奥地利"
+                          }
+                        },
+                        "latlng": [
+                          47.33333333,
+                          13.33333333
+                        ],
+                        "landlocked": true,
+                        "borders": [
+                          "CZE",
+                          "DEU",
+                          "HUN",
+                          "ITA",
+                          "LIE",
+                          "SVK",
+                          "SVN",
+                          "CHE"
+                        ],
+                        "area": 83871.0,
+                        "demonyms": {
+                          "eng": {
+                            "f": "Austrian",
+                            "m": "Austrian"
+                          },
+                          "fra": {
+                            "f": "Autrichienne",
+                            "m": "Autrichien"
+                          }
+                        },
+                        "flag": "🇦🇹",
+                        "maps": {
+                          "googleMaps": "https://goo.gl/maps/pCWpWQHznHyRzQcu9",
+                          "openStreetMaps": "https://www.openstreetmap.org/relation/16239"
+                        },
+                        "population": 8917205,
+                        "gini": {
+                          "2018": 30.8
+                        },
+                        "fifa": "AUT",
+                        "car": {
+                          "signs": [
+                            "A"
+                          ],
+                          "side": "right"
+                        },
+                        "timezones": [
+                          "UTC+01:00"
+                        ],
+                        "continents": [
+                          "Europe"
+                        ],
+                        "flags": {
+                          "png": "https://flagcdn.com/w320/at.png",
+                          "svg": "https://flagcdn.com/at.svg",
+                          "alt": "The flag of Austria is composed of three equal horizontal bands of red, white and red."
+                        },
+                        "coatOfArms": {
+                          "png": "https://mainfacts.com/media/images/coats_of_arms/at.png",
+                          "svg": "https://mainfacts.com/media/images/coats_of_arms/at.svg"
+                        },
+                        "startOfWeek": "monday",
+                        "capitalInfo": {
+                          "latlng": [
+                            48.2,
+                            16.37
+                          ]
+                        },
+                        "postalCode": {
+                          "format": "####",
+                          "regex": "^(\\d{4})$"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "error": true,
+                      "message": "Subregion not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "error": true,
+                      "message": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "subregion": "Western Europe"
+            },
+            {
+              "_name": "edge_case",
+              "subregion": "Australia and New Zealand"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "subregion": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "subregion": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "subregion": null
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "subregion": true
+            },
+            {
+              "_name": "boundary_violation",
+              "subregion": "   "
+            },
+            {
+              "_name": "null_or_missing",
+              "subregion": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1/lang/{lang}": {
+      "get": {
+        "operationId": "v1Lang",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "es"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Spain",
+                        "alpha2Code": "ES",
+                        "alpha3Code": "ESP",
+                        "capital": "Madrid",
+                        "region": "Europe",
+                        "subregion": "Southern Europe",
+                        "population": 47351567,
+                        "languages": [
+                          {
+                            "iso639_1": "es",
+                            "iso639_2": "spa",
+                            "name": "Spanish",
+                            "nativeName": "Español"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "China",
+                        "alpha2Code": "CN",
+                        "alpha3Code": "CHN",
+                        "capital": "Beijing",
+                        "region": "Asia",
+                        "subregion": "Eastern Asia",
+                        "population": 1439323776,
+                        "languages": [
+                          {
+                            "iso639_1": "zh",
+                            "iso639_2": "zho",
+                            "name": "Chinese",
+                            "nativeName": "中文 (Zhōngwén)"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "error": "Not Found",
+                      "message": "No countries found for language code"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "error": "Internal Server Error",
+                      "message": "An unexpected error occurred while processing the request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "lang": "es"
+            },
+            {
+              "_name": "edge_case",
+              "lang": "zh"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "lang": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "lang": ""
+            },
+            {
+              "_name": "null_or_missing",
+              "lang": null
+            }
+          ]
+        }
+      }
+    },
+    "/v2/all": {
+      "get": {
+        "operationId": "v2All",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;region;population;flag"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Afghanistan",
+                        "capital": "Kabul",
+                        "region": "Asia",
+                        "population": 38928346,
+                        "flag": "https://flagcdn.com/af.svg"
+                      },
+                      {
+                        "name": "Åland Islands",
+                        "capital": "Mariehamn",
+                        "region": "Europe",
+                        "population": 28875,
+                        "flag": "https://flagcdn.com/ax.svg"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "fields": "name;capital;region;population;flag"
+            },
+            {
+              "_name": "edge_case",
+              "fields": ""
+            }
+          ]
+        }
+      }
+    },
+    "/v2/alpha/{alphacode}": {
+      "get": {
+        "operationId": "v2Alphacode",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "alphacode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": {
+                      "name": "United States",
+                      "alpha2Code": "US",
+                      "alpha3Code": "USA",
+                      "capital": "Washington, D.C.",
+                      "region": "Americas",
+                      "subregion": "Northern America",
+                      "population": 331002651,
+                      "area": 9372610
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "message": "Bad Request",
+                      "error": "Invalid alpha code format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "error": "Country not found for provided alpha code"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "alphacode": "US",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "alphacode": "XK",
+              "fields": ""
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "alphacode": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "alphacode": "",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "alphacode": null,
+              "fields": "name"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "alphacode": true,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "alphacode": "ZZZ",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "alphacode": "  ",
+              "fields": "name"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/alpha": {
+      "get": {
+        "operationId": "v2Alphacodes",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "codes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "US,CA,MX"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Client error — 400"
+          },
+          "404": {
+            "description": "Client error — 404"
+          },
+          "500": {
+            "description": "Server error — 500"
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "codes": "US,CA,MX",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "codes": "AD",
+              "fields": ""
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "codes": [
+                "US",
+                "CA"
+              ],
+              "fields": 123
+            },
+            {
+              "_name": "boundary_violation",
+              "codes": "",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "null_or_missing",
+              "codes": null,
+              "fields": "name"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "codes": 999,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "codes": "XX,YY,ZZ",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "codes": "",
+              "fields": null
+            }
+          ]
+        }
+      }
+    },
+    "/v2/currency/{currency}": {
+      "get": {
+        "operationId": "v2Currency",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "currency",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EUR"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "capital": "Berlin",
+                        "population": 83240525,
+                        "currencies": [
+                          {
+                            "code": "EUR",
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "status": 400,
+                      "message": "Bad Request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Currency not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "currency": "EUR",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "currency": "XOF",
+              "fields": ""
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "currency": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "currency": "",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "currency": null,
+              "fields": "name"
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "currency": true,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "currency": "XYZ",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "currency": null,
+              "fields": "name"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "currency": {},
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "currency": "😀",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "currency": null,
+              "fields": "name"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/name/{name}": {
+      "get": {
+        "operationId": "v2Name",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Germany"
+          },
+          {
+            "name": "fullText",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "example": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "topLevelDomain": [
+                          ".de"
+                        ],
+                        "alpha2Code": "DE",
+                        "alpha3Code": "DEU",
+                        "callingCodes": [
+                          "49"
+                        ],
+                        "capital": "Berlin",
+                        "altSpellings": [
+                          "DE",
+                          "Federal Republic of Germany",
+                          "Bundesrepublik Deutschland"
+                        ],
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "population": 83240525,
+                        "latlng": [
+                          51.0,
+                          9.0
+                        ],
+                        "demonym": "German",
+                        "area": 357114.0,
+                        "gini": 31.9,
+                        "timezones": [
+                          "UTC+01:00"
+                        ],
+                        "borders": [
+                          "AUT",
+                          "BEL",
+                          "CZE",
+                          "DNK",
+                          "FRA",
+                          "LUX",
+                          "NLD",
+                          "POL",
+                          "CHE"
+                        ],
+                        "nativeName": "Deutschland",
+                        "numericCode": "276",
+                        "currencies": [
+                          {
+                            "code": "EUR",
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        ],
+                        "languages": [
+                          {
+                            "iso639_1": "de",
+                            "iso639_2": "deu",
+                            "name": "German",
+                            "nativeName": "Deutsch"
+                          }
+                        ],
+                        "translations": {
+                          "br": "Alemanha",
+                          "pt": "Alemanha",
+                          "nl": "Duitsland",
+                          "hr": "Njemačka",
+                          "fa": "آلمان"
+                        },
+                        "flag": "https://restcountries.eu/data/deu.svg",
+                        "regionalBlocs": [
+                          {
+                            "acronym": "EU",
+                            "name": "European Union"
+                          }
+                        ],
+                        "cioc": "GER"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "name": "Germany",
+              "fields": "name;capital;population",
+              "fullText": false
+            },
+            {
+              "_name": "edge_case",
+              "name": "Côte d'Ivoire",
+              "fields": "name",
+              "fullText": true
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "name": 123,
+              "fields": "name",
+              "fullText": false
+            },
+            {
+              "_name": "boundary_violation",
+              "name": "",
+              "fields": "name",
+              "fullText": false
+            },
+            {
+              "_name": "null_or_missing",
+              "name": null,
+              "fields": "name",
+              "fullText": false
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "name": true,
+              "fields": "name",
+              "fullText": "yes"
+            },
+            {
+              "_name": "boundary_violation",
+              "name": "X",
+              "fields": "name",
+              "fullText": false
+            },
+            {
+              "_name": "null_or_missing",
+              "name": "Atlantis",
+              "fields": null,
+              "fullText": false
+            }
+          ]
+        }
+      }
+    },
+    "/v2/callingcode/{callingcode}": {
+      "get": {
+        "operationId": "v2Callingcode",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;region"
+          },
+          {
+            "name": "callingcode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "United States",
+                        "topLevelDomain": [
+                          ".us"
+                        ],
+                        "alpha2Code": "US",
+                        "alpha3Code": "USA",
+                        "callingCodes": [
+                          "1"
+                        ],
+                        "capital": "Washington, D.C.",
+                        "altSpellings": [
+                          "US",
+                          "USA",
+                          "United States of America"
+                        ],
+                        "region": "Americas",
+                        "subregion": "Northern America",
+                        "population": 323947000,
+                        "latlng": [
+                          38.0,
+                          -97.0
+                        ],
+                        "demonym": "American",
+                        "area": 9629091.0,
+                        "gini": 48.0,
+                        "timezones": [
+                          "UTC-12:00",
+                          "UTC-11:00",
+                          "UTC-10:00",
+                          "UTC-09:00",
+                          "UTC-08:00",
+                          "UTC-07:00",
+                          "UTC-06:00",
+                          "UTC-05:00",
+                          "UTC-04:00",
+                          "UTC+10:00",
+                          "UTC+12:00"
+                        ],
+                        "borders": [
+                          "CA",
+                          "MX"
+                        ],
+                        "nativeName": "United States",
+                        "numericCode": "840",
+                        "currencies": [
+                          {
+                            "code": "USD",
+                            "name": "United States dollar",
+                            "symbol": "$"
+                          }
+                        ],
+                        "languages": [
+                          {
+                            "iso639_1": "en",
+                            "iso639_2": "eng",
+                            "name": "English",
+                            "nativeName": "English"
+                          }
+                        ],
+                        "translations": {
+                          "de": "Vereinigte Staaten von Amerika",
+                          "es": "Estados Unidos",
+                          "fr": "États-Unis",
+                          "ja": "アメリカ合衆国",
+                          "it": "Stati Uniti D'America",
+                          "br": "Estados Unidos",
+                          "pt": "Estados Unidos",
+                          "nl": "Verenigde Staten",
+                          "hr": "Sjedinjene Američke Države",
+                          "fa": "ایالات متحده آمریکا"
+                        },
+                        "flag": "https://restcountries.com/data/usa.svg",
+                        "regionalBlocs": [
+                          {
+                            "acronym": "NAFTA",
+                            "name": "North American Free Trade Agreement",
+                            "otherAcronyms": [],
+                            "otherNames": []
+                          }
+                        ],
+                        "cioc": "USA"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "callingcode": "1",
+              "fields": "name;capital;region"
+            },
+            {
+              "_name": "edge_case",
+              "callingcode": "44",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "callingcode": "abc",
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "callingcode": "999999",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "callingcode": null,
+              "fields": "name"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "callingcode": true,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "callingcode": "-1",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "callingcode": "",
+              "fields": "name"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/capital/{capital}": {
+      "get": {
+        "operationId": "v2Capital",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "capital",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Paris"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "France",
+                        "capital": "Paris",
+                        "population": 67390000,
+                        "region": "Europe",
+                        "subregion": "Western Europe",
+                        "alpha2Code": "FR",
+                        "alpha3Code": "FRA"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "status": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "status": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "capital": "Paris",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "capital": "Nuuk",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "capital": 12345,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "capital": "",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "capital": null,
+              "fields": "name"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/region/{region}": {
+      "get": {
+        "operationId": "v2Region",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Europe"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "capital": "Berlin",
+                        "population": 83240525
+                      },
+                      {
+                        "name": "Nigeria",
+                        "capital": "Abuja",
+                        "population": 206139589
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "status": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "status": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "region": "Europe",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "region": "Africa",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "region": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "region": "",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "region": null,
+              "fields": "name"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "region": true,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "region": "   ",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "region": "Asia",
+              "fields": null
+            }
+          ]
+        }
+      }
+    },
+    "/v2/subregion/{subregion}": {
+      "get": {
+        "operationId": "v2Subregion",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "subregion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Western Europe"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "capital": "Berlin",
+                        "population": 83240525,
+                        "area": 357114,
+                        "region": "Europe",
+                        "subregion": "Western Europe"
+                      },
+                      {
+                        "name": "Australia",
+                        "capital": "Canberra",
+                        "population": 25687041,
+                        "area": 7692024,
+                        "region": "Oceania",
+                        "subregion": "Australia and New Zealand"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "status": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "status": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "subregion": "Western Europe",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "subregion": "Australia and New Zealand",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "subregion": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "subregion": "",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "subregion": null,
+              "fields": "name"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/lang/{lang}": {
+      "get": {
+        "operationId": "v2Lang",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "lang",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Spanish"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Argentina",
+                        "capital": "Buenos Aires",
+                        "population": 45380000,
+                        "languages": [
+                          {
+                            "iso639_1": "es",
+                            "iso639_2": "spa",
+                            "name": "Spanish",
+                            "nativeName": "Español"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "Antarctica",
+                        "capital": "",
+                        "population": 0,
+                        "languages": []
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not found",
+                      "error": "No countries found for language code 'xyz'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal server error",
+                      "error": "An unexpected error occurred while processing the request"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "lang": "Spanish",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "lang": "English",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "lang": 123,
+              "fields": "name;capital"
+            },
+            {
+              "_name": "boundary_violation",
+              "lang": "",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "lang": null,
+              "fields": "name;capital"
+            }
+          ]
+        }
+      }
+    },
+    "/v2/demonym/{demonym}": {
+      "get": {
+        "operationId": "v2Demonym",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population"
+          },
+          {
+            "name": "demonym",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "American"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "United States",
+                        "capital": "Washington, D.C.",
+                        "population": 331002651
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "message": "Not Found",
+                      "status": 404
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "message": "Internal Server Error",
+                      "status": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "demonym": "American",
+              "fields": "name;capital;population"
+            },
+            {
+              "_name": "edge_case",
+              "demonym": "Singaporean",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "demonym": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "demonym": "",
+              "fields": "name;capital"
+            },
+            {
+              "_name": "null_or_missing",
+              "demonym": null,
+              "fields": "name"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "demonym": true,
+              "fields": "name;capital"
+            },
+            {
+              "_name": "boundary_violation",
+              "demonym": "A",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "demonym": "Australian",
+              "fields": null
+            }
+          ]
+        }
+      }
+    },
+    "/v2/regionalbloc/{regionalbloc}": {
+      "get": {
+        "operationId": "v2Regionalbloc",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;currencies"
+          },
+          {
+            "name": "regionalbloc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "EU"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Germany",
+                        "capital": "Berlin",
+                        "currencies": [
+                          {
+                            "code": "EUR",
+                            "name": "Euro",
+                            "symbol": "€"
+                          }
+                        ]
+                      },
+                      {
+                        "name": "United States",
+                        "capital": "Washington, D.C.",
+                        "currencies": [
+                          {
+                            "code": "USD",
+                            "name": "United States Dollar",
+                            "symbol": "$"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client error — 404",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_404": {
+                    "value": {
+                      "status": 404,
+                      "message": "Regional bloc not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error — 500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_500": {
+                    "value": {
+                      "status": 500,
+                      "message": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "regionalbloc": "EU",
+              "fields": "name;capital;currencies"
+            },
+            {
+              "_name": "edge_case",
+              "regionalbloc": "NAFTA",
+              "fields": ""
+            }
+          ],
+          "404": [
+            {
+              "_name": "invalid_type",
+              "regionalbloc": 123,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "regionalbloc": "",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "regionalbloc": null,
+              "fields": "name"
+            }
+          ],
+          "500": [
+            {
+              "_name": "invalid_type",
+              "regionalbloc": true,
+              "fields": "name"
+            },
+            {
+              "_name": "boundary_violation",
+              "regionalbloc": "X",
+              "fields": "name"
+            },
+            {
+              "_name": "null_or_missing",
+              "regionalbloc": "AU",
+              "fields": null
+            }
+          ]
+        }
+      }
+    },
+    "/v1": {
+      "get": {
+        "summary": "Returns all countries.",
+        "description": "Returns all countries.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": {
+                      "_name": "typical",
+                      "value": [
+                        {
+                          "name": "Afghanistan",
+                          "topLevelDomain": [
+                            ".af"
+                          ],
+                          "alpha2Code": "AF",
+                          "alpha3Code": "AFG",
+                          "callingCodes": [
+                            "93"
+                          ],
+                          "capital": "Kabul",
+                          "altSpellings": [
+                            "AF",
+                            "Afġānistān"
+                          ],
+                          "region": "Asia",
+                          "subregion": "Southern Asia",
+                          "population": 27657145,
+                          "latlng": [
+                            33,
+                            65
+                          ],
+                          "demonym": "Afghan",
+                          "area": 652230,
+                          "gini": 27.8,
+                          "timezones": [
+                            "UTC+04:30"
+                          ],
+                          "borders": [
+                            "IRN",
+                            "PAK",
+                            "TKM",
+                            "UZB",
+                            "TJK",
+                            "CHN"
+                          ],
+                          "nativeName": "افغانستان",
+                          "numericCode": "004",
+                          "currencies": [
+                            {
+                              "code": "AFN",
+                              "name": "Afghan afghani",
+                              "symbol": "؋"
+                            }
+                          ],
+                          "languages": [
+                            {
+                              "iso639_1": "ps",
+                              "iso639_2": "pus",
+                              "name": "Pashto",
+                              "nativeName": "پښتو"
+                            },
+                            {
+                              "iso639_1": "uz",
+                              "iso639_2": "uzb",
+                              "name": "Uzbek",
+                              "nativeName": "Oʻzbek"
+                            },
+                            {
+                              "iso639_1": "tk",
+                              "iso639_2": "tuk",
+                              "name": "Turkmen",
+                              "nativeName": "Türkmen"
+                            }
+                          ],
+                          "translations": {
+                            "br": "Afeganistão",
+                            "pt": "Afeganistão",
+                            "nl": "Afghanistan",
+                            "hr": "Afganistan",
+                            "fa": "افغانستان",
+                            "de": "Afghanistan",
+                            "es": "Afganistán",
+                            "fr": "Afghanistan",
+                            "ja": "アフガニスタン",
+                            "it": "Afghanistan",
+                            "hu": "Afganisztán"
+                          },
+                          "flag": "https://restcountries.eu/data/afg.svg",
+                          "regionalBlocs": [
+                            {
+                              "acronym": "SAARC",
+                              "name": "South Asian Association for Regional Cooperation",
+                              "otherAcronyms": [],
+                              "otherNames": []
+                            }
+                          ],
+                          "cioc": "AFG"
+                        },
+                        {
+                          "name": "Åland Islands",
+                          "topLevelDomain": [
+                            ".ax"
+                          ],
+                          "alpha2Code": "AX",
+                          "alpha3Code": "ALA",
+                          "callingCodes": [
+                            "358"
+                          ],
+                          "capital": "Mariehamn",
+                          "altSpellings": [
+                            "AX",
+                            "Aaland",
+                            "Aland",
+                            "Ahvenanmaa"
+                          ],
+                          "region": "Europe",
+                          "subregion": "Northern Europe",
+                          "population": 28875,
+                          "latlng": [
+                            60.116667,
+                            19.9
+                          ],
+                          "demonym": "Ålandish",
+                          "area": 1580,
+                          "gini": null,
+                          "timezones": [
+                            "UTC+02:00"
+                          ],
+                          "borders": [],
+                          "nativeName": "Åland",
+                          "numericCode": "248",
+                          "currencies": [
+                            {
+                              "code": "EUR",
+                              "name": "Euro",
+                              "symbol": "€"
+                            }
+                          ],
+                          "languages": [
+                            {
+                              "iso639_1": "sv",
+                              "iso639_2": "swe",
+                              "name": "Swedish",
+                              "nativeName": "svenska"
+                            }
+                          ],
+                          "translations": {
+                            "br": "Ilhas de Aland",
+                            "pt": "Ilhas de Aland",
+                            "nl": "Ålandeilanden",
+                            "hr": "Ålandski otoci",
+                            "fa": "جزایر الند",
+                            "de": "Åland",
+                            "es": "Alandia",
+                            "fr": "Åland",
+                            "ja": "オーランド諸島",
+                            "it": "Isole Aland",
+                            "hu": "Åland-szigetek"
+                          },
+                          "flag": "https://restcountries.eu/data/ala.svg",
+                          "regionalBlocs": [
+                            {
+                              "acronym": "EU",
+                              "name": "European Union",
+                              "otherAcronyms": [],
+                              "otherNames": []
+                            }
+                          ],
+                          "cioc": ""
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-added-from-impl": true
+      },
+      "post": {
+        "summary": "Handles POST requests and returns method not allowed.",
+        "description": "Handles POST requests and returns method not allowed.",
+        "responses": {
+          "405": {
+            "description": "Client error — 405",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_405": {
+                    "value": {
+                      "error": "Method Not Allowed",
+                      "message": "POST method is not allowed for this endpoint",
+                      "status": 405
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-added-from-impl": true
+      }
+    },
+    "/v2": {
+      "get": {
+        "summary": "Returns all countries with optional field filtering.",
+        "description": "Returns all countries with optional field filtering.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_200": {
+                    "value": [
+                      {
+                        "name": "Afghanistan",
+                        "capital": "Kabul",
+                        "population": 38928346,
+                        "region": "Asia"
+                      },
+                      {
+                        "name": "Åland Islands",
+                        "capital": "Mariehamn",
+                        "population": 28875,
+                        "region": "Europe"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-added-from-impl": true,
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Semicolon-separated list of fields to include in response",
+            "schema": {
+              "type": "string"
+            },
+            "example": "name;capital;population;region"
+          }
+        ],
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "fields": "name;capital;population;region"
+            },
+            {
+              "_name": "edge_case",
+              "fields": "alpha2Code"
+            }
+          ]
+        }
+      },
+      "post": {
+        "summary": "Handles POST requests by returning method not allowed.",
+        "description": "Handles POST requests by returning method not allowed.",
+        "responses": {
+          "405": {
+            "description": "Client error — 405",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_405": {
+                    "value": {
+                      "message": "Method not allowed",
+                      "error": "POST method is not supported on this endpoint",
+                      "status": 405
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-added-from-impl": true
+      }
+    },
+    "/contribute": {
+      "post": {
+        "summary": "Processes a Stripe charge for a contribution.",
+        "description": "Processes a Stripe charge for a contribution.",
+        "responses": {
+          "202": {
+            "description": "Response 202",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_202": {
+                    "value": {
+                      "status": "accepted",
+                      "message": "Contribution received and is being processed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_400": {
+                    "value": {
+                      "error": "Invalid request",
+                      "message": "Required fields are missing or invalid."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-added-from-impl": true,
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "JSON payload containing amount, currency, token, etc."
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  }
+}

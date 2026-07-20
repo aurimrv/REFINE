@@ -1,0 +1,571 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Examples of different numerical algorithms accessible via REST",
+    "version": "1.0",
+    "title": "API for Numerical Case Study (NCS)"
+  },
+  "schemes": [
+    "http"
+  ],
+  "host": "localhost:8080",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "ncs-rest",
+      "description": "Ncs Rest"
+    }
+  ],
+  "paths": {
+    "/api/bessj/{n}/{x}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "bessj",
+        "operationId": "bessjUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "n",
+            "in": "path",
+            "description": "n",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 3
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "x",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 2.5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "value": -0.261375
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "error": "Bad Request",
+                "message": "Invalid parameter type or value"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "n": 3,
+              "x": 2.5
+            },
+            {
+              "_name": "edge_case",
+              "n": 0,
+              "x": 1e-10
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "n": "abc",
+              "x": 2.5
+            },
+            {
+              "_name": "boundary_violation",
+              "n": -5,
+              "x": 2.5
+            },
+            {
+              "_name": "null_or_missing",
+              "n": null,
+              "x": 2.5
+            }
+          ]
+        }
+      }
+    },
+    "/api/expint/{n}/{x}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "expint",
+        "operationId": "expintUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "n",
+            "in": "path",
+            "description": "n",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 3
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "x",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 2.5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "result": 0.061099,
+                "status": "success"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "error": "Bad Request",
+                "message": "Invalid parameter value"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "n": 3,
+              "x": 2.5
+            },
+            {
+              "_name": "edge_case",
+              "n": 1,
+              "x": 0.1
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type_n",
+              "n": "abc",
+              "x": 2.5
+            },
+            {
+              "_name": "boundary_violation_n",
+              "n": -1,
+              "x": 2.5
+            },
+            {
+              "_name": "null_or_missing_x",
+              "n": 3,
+              "x": null
+            },
+            {
+              "_name": "invalid_type_x",
+              "n": 3,
+              "x": true
+            },
+            {
+              "_name": "boundary_violation_x",
+              "n": 3,
+              "x": -999.9
+            },
+            {
+              "_name": "null_or_missing_n",
+              "n": null,
+              "x": 2.5
+            }
+          ]
+        }
+      }
+    },
+    "/api/fisher/{m}/{n}/{x}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "fisher",
+        "operationId": "fisherUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "m",
+            "in": "path",
+            "description": "m",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 10
+          },
+          {
+            "name": "n",
+            "in": "path",
+            "description": "n",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 5
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "x",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 0.75
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "value": 0.8473,
+                "message": "Fisher computation successful"
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "error": "Bad Request",
+                "message": "Invalid parameter format or value"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "m": 10,
+              "n": 5,
+              "x": 0.75
+            },
+            {
+              "_name": "edge_case",
+              "m": 1,
+              "n": 1,
+              "x": 0.0
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type_m",
+              "m": "abc",
+              "n": 5,
+              "x": 0.5
+            },
+            {
+              "_name": "boundary_violation_n",
+              "m": 8,
+              "n": -3,
+              "x": 1.2
+            },
+            {
+              "_name": "null_or_missing_x",
+              "m": 12,
+              "n": 6,
+              "x": null
+            }
+          ]
+        }
+      }
+    },
+    "/api/gammq/{a}/{x}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "gammq",
+        "operationId": "gammqUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "a",
+            "in": "path",
+            "description": "a",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 5.5
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "description": "x",
+            "required": true,
+            "type": "number",
+            "format": "double",
+            "x-example": 2.3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "result": 0.849,
+                "error": null
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "message": "Bad Request",
+                "status": 400,
+                "error": "Invalid parameter type or value"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "a": 5.5,
+              "x": 2.3
+            },
+            {
+              "_name": "edge_case",
+              "a": 0.001,
+              "x": 1000.0
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "a": "abc",
+              "x": 3.0
+            },
+            {
+              "_name": "boundary_violation",
+              "a": -1.0,
+              "x": 2.0
+            },
+            {
+              "_name": "null_or_missing",
+              "a": null,
+              "x": 2.0
+            }
+          ]
+        }
+      }
+    },
+    "/api/remainder/{a}/{b}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "remainder",
+        "operationId": "remainderUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "a",
+            "in": "path",
+            "description": "a",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 17
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "description": "b",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "result": 2
+              }
+            }
+          },
+          "400": {
+            "description": "Client error — 400",
+            "examples": {
+              "application/json": {
+                "error": "Bad Request",
+                "message": "Invalid parameter type or value"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "a": 17,
+              "b": 5
+            },
+            {
+              "_name": "edge_case",
+              "a": -9,
+              "b": 4
+            }
+          ],
+          "400": [
+            {
+              "_name": "invalid_type",
+              "a": "abc",
+              "b": 3
+            },
+            {
+              "_name": "boundary_violation",
+              "a": 0,
+              "b": 0
+            },
+            {
+              "_name": "null_or_missing",
+              "a": null,
+              "b": 7
+            }
+          ]
+        }
+      }
+    },
+    "/api/triangle/{a}/{b}/{c}": {
+      "get": {
+        "tags": [
+          "ncs-rest"
+        ],
+        "summary": "Check the triangle type of the given three edges",
+        "operationId": "checkTriangleUsingGET",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "a",
+            "in": "path",
+            "description": "First edge",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 3
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "description": "Second edge",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 4
+          },
+          {
+            "name": "c",
+            "in": "path",
+            "description": "Third edge",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "x-example": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Dto"
+            },
+            "examples": {
+              "application/json": {
+                "triangleType": "right"
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "x-parameter-examples": {
+          "200": [
+            {
+              "_name": "typical",
+              "a": 3,
+              "b": 4,
+              "c": 5
+            },
+            {
+              "_name": "edge_case",
+              "a": 1,
+              "b": 1,
+              "c": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Dto": {
+      "type": "object",
+      "properties": {
+        "resultAsDouble": {
+          "type": "number",
+          "format": "double"
+        },
+        "resultAsInt": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Dto"
+    }
+  }
+}
