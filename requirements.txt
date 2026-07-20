@@ -3,3 +3,5 @@ python-dotenv>=1.0.1
 pydantic>=2.6.1
 colorlog>=6.8.2
 tenacity>=8.2.3
+jsonschema>=4.21.1
+json_repair>=0.25.0
